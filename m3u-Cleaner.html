@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+    <meta name="referrer" content="no-referrer">
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+    
+    <title>System Tool</title>
+    <style>
+        body { background:#0a0a0a; color:#fff; font-family:monospace; margin:0; padding:20px; text-align:center; }
+        .box { background:#1a1a1a; padding:25px; border-radius:10px; max-width:800px; margin:0 auto; border:1px solid #333; display:none; }
+        #authBox { margin-top:15vh; }
+        input[type="password"] { padding:12px; font-size:18px; text-align:center; border-radius:6px; border:1px solid #444; background:#000; color:#0f0; margin-bottom:15px; outline:none; letter-spacing:5px; }
+        textarea { width:100%; height:200px; background:#000; color:#0f0; border:1px solid #444; padding:15px; border-radius:8px; font-family:monospace; margin-bottom:15px; box-sizing:border-box; resize:vertical; outline:none; }
+        button { background:#2563eb; color:#fff; font-weight:bold; cursor:pointer; padding:12px 25px; border:none; border-radius:6px; font-size:16px; transition:0.3s; }
+        button:hover { background:#1d4ed8; }
+        button:disabled { background:#555; cursor:not-allowed; }
+        #copyBtn { background:#16a34a; display:none; margin-top:10px; }
+    </style>
+</head>
+<body>
+
+    <div id="authBox">
+        <h2 style="color:#555;">Restricted Access</h2>
+        <input type="password" id="pinInput" placeholder="****" maxlength="4"><br>
+        <button onclick="verifyAccess()">Unlock</button>
+    </div>
+
+    <div id="appBox" class="box">
+        <h2 style="color:#eab308;">⚡ Titan Flash (Secured)</h2>
+        <p style="color:#666;">Data is processed locally and auto-deleted.</p>
+        
+        <textarea id="rawInput" placeholder="Paste raw M3U text here..."></textarea>
+        <button id="btn" onclick="startCleaning()">🧹 Clean</button>
+        <textarea id="output" style="margin-top:20px; color:#fff;" placeholder="Output..." readonly></textarea>
+        <button id="copyBtn" onclick="copyResult()">📋 Copy & Clear</button>
+    </div>
+
+<script>
+    // --- Authentication Logic ---
+    function verifyAccess() {
+        var input = document.getElementById("pinInput").value;
+        
+        // Obfuscated PIN Check. btoa("8899") = "ODg5OQ=="
+        // PIN is: 8899
+        if (btoa(input) === "ODg5OQ==") {
+            document.getElementById("authBox").style.display = "none";
+            document.getElementById("appBox").style.display = "block";
+        } else {
+            document.body.innerHTML = "<h1 style='color:red; margin-top:20vh;'>ACCESS DENIED</h1>";
+        }
+    }
+
+    // Allow pressing Enter to unlock
+    document.getElementById("pinInput").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") { verifyAccess(); }
+    });
+
+    // --- Cleaning Logic ---
+    function startCleaning() { 
+        var input = document.getElementById("rawInput").value; 
+        if(!input){ alert("Input is empty!"); return; } 
+        
+        var btn = document.getElementById("btn");
+        btn.disabled = true; 
+        btn.innerText = "Processing..."; 
+
+        setTimeout(function() {
+            var lines = input.split("\n");
+            var outputLines = ["#EXTM3U"];
+            var currentName = "Unknown";
+
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i].trim();
+                if (!line) continue;
+                
+                if (line.indexOf("#EXTINF") === 0) {
+                    var lastComma = line.lastIndexOf(",");
+                    currentName = (lastComma !== -1) ? line.substring(lastComma + 1).trim() : "Unknown";
+                } 
+                else if (line.indexOf("http") === 0) {
+                    var cleanLink = line.split('?')[0].split('|')[0];
+                    outputLines.push("#EXTINF:-1 ," + currentName);
+                    outputLines.push(cleanLink);
+                }
+            }
+            
+            document.getElementById("output").value = outputLines.join("\n"); 
+            btn.innerText = "🧹 Clean"; 
+            btn.disabled = false; 
+            document.getElementById("copyBtn").style.display = "inline-block"; 
+            
+            // Auto-clear raw input for privacy
+            document.getElementById("rawInput").value = ""; 
+        }, 50);
+    } 
+
+    // --- Copy and Auto-Destroy Logic ---
+    function copyResult() { 
+        var out = document.getElementById("output"); 
+        out.select(); 
+        document.execCommand("copy"); 
+        alert("Copied successfully! Data will be cleared now."); 
+        
+        // Auto-clear output after copying
+        out.value = ""; 
+        document.getElementById("copyBtn").style.display = "none"; 
+    }
+</script>
+
+</body>
+</html>
