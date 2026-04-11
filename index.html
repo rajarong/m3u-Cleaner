@@ -4,80 +4,78 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
-    <meta name="referrer" content="no-referrer">
     <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
-    
-    <title>Titan Flash Tool</title>
+    <title>System Tool</title>
     <style>
         body { background:#0a0a0a; color:#fff; font-family:monospace; margin:0; padding:20px; text-align:center; }
         .box { background:#1a1a1a; padding:25px; border-radius:10px; max-width:800px; margin:20px auto; border:1px solid #333; }
         textarea { width:100%; height:200px; background:#000; color:#0f0; border:1px solid #444; padding:15px; border-radius:8px; font-family:monospace; margin-bottom:15px; box-sizing:border-box; resize:vertical; outline:none; }
         button { background:#2563eb; color:#fff; font-weight:bold; cursor:pointer; padding:12px 25px; border:none; border-radius:6px; font-size:16px; transition:0.3s; }
         button:hover { background:#1d4ed8; }
-        button:disabled { background:#555; cursor:not-allowed; }
-        #copyBtn { background:#16a34a; display:none; margin-top:10px; }
+        #copyBtn { background:#dc2626; display:none; margin-top:10px; }
+        #copyBtn:hover { background:#b91c1c; }
     </style>
 </head>
 <body>
 
-    <div id="appBox" class="box">
-        <h2 style="color:#eab308;">⚡ Titan Flash</h2>
-        <p style="color:#666;">Security: Local processing active. Data auto-wiped on copy.</p>
-        
-        <textarea id="rawInput" placeholder="Paste raw data here..."></textarea>
-        <button id="btn" onclick="startCleaning()">Process Data</button>
-        <textarea id="output" style="margin-top:20px; color:#fff;" placeholder="Result will appear here..." readonly></textarea>
-        <button id="copyBtn" onclick="copyResult()">Copy & Destroy</button>
+    <div class="box">
+        <h2 style="color:#eab308;">Flash Processor</h2>
+        <textarea id="rawInput" placeholder="Enter source data..."></textarea>
+        <button id="pBtn" onclick="runTask()">Process</button>
+        <textarea id="output" style="margin-top:20px; color:#fff;" placeholder="Result..." readonly></textarea>
+        <button id="copyBtn" onclick="copyAndDestroy()">Copy & Vanish</button>
     </div>
 
 <script>
-    function startCleaning() { 
-        var input = document.getElementById("rawInput").value; 
-        if(!input){ return; } 
+    function runTask() { 
+        const input = document.getElementById("rawInput").value; 
+        if(!input) return; 
         
-        var btn = document.getElementById("btn");
+        const btn = document.getElementById("pBtn");
         btn.disabled = true; 
-        btn.innerText = "Processing..."; 
 
-        setTimeout(function() {
-            var lines = input.split("\n");
-            var outputLines = ["#EXTM3U"];
-            var currentName = "Unknown";
+        const lines = input.split("\n");
+        const out = ["#EXTM3U"];
+        let name = "Unknown";
 
-            for (var i = 0; i < lines.length; i++) {
-                var line = lines[i].trim();
-                if (!line) continue;
-                
-                if (line.indexOf("#EXTINF") === 0) {
-                    var lastComma = line.lastIndexOf(",");
-                    currentName = (lastComma !== -1) ? line.substring(lastComma + 1).trim() : "Unknown";
-                } 
-                else if (line.indexOf("http") === 0) {
-                    var cleanLink = line.split('?')[0].split('|')[0];
-                    outputLines.push("#EXTINF:-1 ," + currentName);
-                    outputLines.push(cleanLink);
-                }
+        for (let i = 0; i < lines.length; i++) {
+            let line = lines[i].trim();
+            if (!line) continue;
+            if (line.indexOf("#EXTINF") === 0) {
+                let last = line.lastIndexOf(",");
+                name = (last !== -1) ? line.substring(last + 1).trim() : "Unknown";
+            } else if (line.indexOf("http") === 0) {
+                let link = line.split('?')[0].split('|')[0];
+                out.push("#EXTINF:-1 ," + name);
+                out.push(link);
             }
-            
-            document.getElementById("output").value = outputLines.join("\n"); 
-            btn.innerText = "Process Data"; 
-            btn.disabled = false; 
-            document.getElementById("copyBtn").style.display = "inline-block"; 
-            document.getElementById("rawInput").value = ""; 
-        }, 50);
+        }
+        
+        document.getElementById("output").value = out.join("\n"); 
+        document.getElementById("copyBtn").style.display = "inline-block"; 
+        // Auto wipe input after processing
+        document.getElementById("rawInput").value = ""; 
+        btn.disabled = false;
     } 
 
-    function copyResult() { 
-        var out = document.getElementById("output"); 
-        out.select(); 
-        out.setSelectionRange(0, 99999);
+    function copyAndDestroy() { 
+        const target = document.getElementById("output"); 
+        const source = document.getElementById("rawInput");
+        
+        // Step 1: Copy to clipboard
+        target.select(); 
+        target.setSelectionRange(0, 99999);
         document.execCommand("copy"); 
         
+        // Step 2: Clear selection
         window.getSelection().removeAllRanges();
         
-        out.value = ""; 
-        document.getElementById("rawInput").value = ""; 
-        document.getElementById("copyBtn").style.display = "none"; 
+        // Step 3: Instant Vanish (Wipe all data)
+        target.value = ""; 
+        source.value = ""; 
+        document.getElementById("copyBtn").style.display = "none";
+        
+        console.log("Memory Cleared.");
     }
 </script>
 
