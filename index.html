@@ -46,7 +46,7 @@
                 name = (last !== -1) ? line.substring(last + 1).trim() : "Unknown";
             } else if (line.indexOf("http") === 0) {
                 let link = line.split('?')[0].split('|')[0];
-                out.push("#EXTINF:-1 ," + name);
+                out.push('#EXTINF:-1 tvg-logo="https://imgur.com/79g2kMA.png" ,' + name);
                 out.push(link);
             }
         }
