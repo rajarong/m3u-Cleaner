@@ -38,7 +38,7 @@
 <div class="container">
     <div class="box">
         <h2>⚡ M3U Processor</h2>
-        <p style="color:#888;font-size:13px;">JSON / M3U / TXT (নাম, লিংক ফরম্যাট সাপোর্ট করে)</p>
+        <p style="color:#888;font-size:13px;">JSON / M3U / TXT (সব ফরম্যাট সাপোর্ট করে)</p>
 
         <div class="logo-input">
             <label style="color:#aaa;font-size:12px;">🎯 লোগো URL:</label>
@@ -89,37 +89,85 @@
         return text.startsWith('[') || text.startsWith('{');
     }
 
+    function extractNameFromItem(item) {
+        const nameFields = ['name', 'channel', 'title', 'label', 'displayName', 'display_name', 
+                           'channelName', 'channel_name', 'serviceName', 'service_name', 
+                           'station', 'brand', 'id', 'slug'];
+        for (const field of nameFields) {
+            if (item[field] && typeof item[field] === 'string' && item[field].trim()) {
+                return item[field].trim();
+            }
+        }
+        return null;
+    }
+
+    function extractUrlFromItem(item) {
+        const urlFields = ['streamUrl', 'url', 'link', 'stream', 'source', 'playlist', 
+                          'hls', 'm3u8', 'stream_link', 'streamlink', 'video', 
+                          'src', 'href', 'path', 'uri', 'location'];
+        for (const field of urlFields) {
+            let val = item[field];
+            if (val) {
+                if (Array.isArray(val) && val.length > 0) {
+                    val = val[0];
+                }
+                if (typeof val === 'string' && val.trim().startsWith('http')) {
+                    return val.trim();
+                }
+            }
+        }
+        if (item.stream && typeof item.stream === 'object') {
+            const streamUrl = item.stream.url || item.stream.link || item.stream.source;
+            if (streamUrl && typeof streamUrl === 'string' && streamUrl.trim().startsWith('http')) {
+                return streamUrl.trim();
+            }
+        }
+        if (item.duplicates && Array.isArray(item.duplicates.backupStreamUrls) && item.duplicates.backupStreamUrls.length > 0) {
+            const backup = item.duplicates.backupStreamUrls[0];
+            if (backup && typeof backup === 'string' && backup.trim().startsWith('http')) {
+                return backup.trim();
+            }
+        }
+        return null;
+    }
+
     function parseJSONData(data) {
         let items = [];
         try {
             const json = JSON.parse(data);
-            if (Array.isArray(json)) items = json;
-            else if (json.channels) items = json.channels;
-            else if (json.items) items = json.items;
-            else if (json.data) items = json.data;
-            else if (json.name && json.url) items = [json];
-            else if (json.name && json.link) items = [json];
-            else if (json.channel && json.url) items = [json];
-        } catch(e) { return null; }
+            if (Array.isArray(json)) {
+                items = json;
+            } else if (json.channels) {
+                items = json.channels;
+            } else if (json.items) {
+                items = json.items;
+            } else if (json.data) {
+                items = json.data;
+            } else if (json.channel) {
+                items = [json];
+            } else {
+                if (extractNameFromItem(json) || extractUrlFromItem(json)) {
+                    items = [json];
+                }
+            }
+        } catch(e) { 
+            return null; 
+        }
         return items;
     }
 
-    // ===== নতুন: TXT লাইন থেকে নাম ও লিংক আলাদা করা =====
     function extractNameAndUrl(line) {
         line = line.trim();
         if (!line) return null;
 
-        // চেক: যদি লাইন http:// বা https:// দিয়ে শুরু হয়
         if (line.match(/^https?:\/\//i)) {
             return { name: null, url: line };
         }
 
-        // ডিলিমিটার চেক: কমা, পাইপ, ড্যাশ, বা সেমিকোলন
-        const separators = [',', '|', ';', ' - ', ' – '];
+        const separators = [',', '|', ';', ' - ', ' – ', '\t'];
         for (const sep of separators) {
             if (line.includes(sep)) {
                 const parts = line.split(sep).map(s => s.trim());
-                // শেষ অংশটা URL কিনা চেক
                 const lastPart = parts[parts.length - 1];
                 if (lastPart.match(/^https?:\/\//i)) {
                     const name = parts.slice(0, -1).join(' ').trim();
@@ -128,7 +176,6 @@
             }
         }
 
-        // কোন ডিলিমিটার না পেলে পুরো লাইনটা URL কিনা চেক
         if (line.match(/^https?:\/\//i)) {
             return { name: null, url: line };
         }
@@ -136,7 +183,6 @@
         return null;
     }
 
-    // ===== মেইন ফাংশন =====
     function runTask() {
         const input = document.getElementById('rawInput').value;
         if (!input || !input.trim()) {
@@ -159,19 +205,19 @@
                 const seen = new Set();
                 let count = 0;
 
-                // ===== 1. JSON চেক =====
+                // ===== JSON =====
                 if (isJSONFormat(input)) {
                     const items = parseJSONData(input);
                     if (items && items.length > 0) {
                         for (const item of items) {
-                            let name = item.name || item.channel || item.title || item.label || item.id || '';
-                            let url = item.url || item.link || item.stream || item.source || '';
-                            if (Array.isArray(url)) url = url[0] || '';
+                            const name = extractNameFromItem(item);
+                            let url = extractUrlFromItem(item);
+                            
                             if (url && typeof url === 'string') {
                                 url = url.split('?')[0].split('|')[0].trim();
                                 if (url.startsWith('http') && !seen.has(url)) {
                                     seen.add(url);
-                                    const cleanName = cleanNameText(name) || `Channel ${count+1}`;
+                                    const cleanName = name ? cleanNameText(name) : `Channel ${count+1}`;
                                     output.push(`#EXTINF:-1 tvg-logo="${logo}" ,${cleanName}`);
                                     output.push(url);
                                     count++;
@@ -181,7 +227,7 @@
                     }
                 }
 
-                // ===== 2. JSON না হলে M3U / TXT =====
+                // ===== M3U / TXT =====
                 if (count === 0) {
                     const lines = input.split('\n');
                     let currentName = 'Unknown';
@@ -190,7 +236,6 @@
                         let line = lines[i].trim();
                         if (!line) continue;
 
-                        // M3U #EXTINF লাইন
                         if (line.indexOf('#EXTINF') === 0) {
                             const lastComma = line.lastIndexOf(',');
                             if (lastComma !== -1) {
@@ -202,7 +247,6 @@
                             continue;
                         }
 
-                        // URL লাইন
                         if (line.indexOf('http') === 0) {
                             const cleanUrl = line.split('?')[0].split('|')[0].trim();
                             if (cleanUrl && !seen.has(cleanUrl)) {
@@ -216,7 +260,6 @@
                             continue;
                         }
 
-                        // ===== নতুন: TXT "নাম, লিংক" ফরম্যাট =====
                         const parsed = extractNameAndUrl(line);
                         if (parsed && parsed.url) {
                             const cleanUrl = parsed.url.split('?')[0].split('|')[0].trim();
@@ -232,7 +275,7 @@
                     }
                 }
 
-                // ===== 3. শেষ চেষ্টা: শুধু URL =====
+                // ===== শেষ চেষ্টা: শুধু URL =====
                 if (count === 0) {
                     const urlRegex = /(https?:\/\/[^\s"']+\.(?:m3u8|ts|mpd|m3u)[^\s"']*)/gi;
                     const matches = input.match(urlRegex);
