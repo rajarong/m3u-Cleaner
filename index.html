@@ -14,67 +14,316 @@
         button:hover { background:#1d4ed8; }
         #copyBtn { background:#dc2626; display:none; margin-top:10px; }
         #copyBtn:hover { background:#b91c1c; }
+        #status { color:#eab308; margin-top:10px; font-size:13px; min-height:20px; }
     </style>
 </head>
 <body>
 
     <div class="box">
         <h2 style="color:#eab308;">Flash Processor</h2>
-        <textarea id="rawInput" placeholder="Enter source data..."></textarea>
+        <textarea id="rawInput" placeholder="Enter source data (M3U or any JSON)..."></textarea>
         <button id="pBtn" onclick="runTask()">Process</button>
+        <div id="status"></div>
         <textarea id="output" style="margin-top:20px; color:#fff;" placeholder="Result..." readonly></textarea>
         <button id="copyBtn" onclick="copyAndDestroy()">Copy & Vanish</button>
     </div>
 
 <script>
-    function runTask() { 
-        const input = document.getElementById("rawInput").value; 
-        if(!input) return; 
-        
+    /* ============================
+       MAIN ENTRY
+    ============================ */
+    function runTask() {
+        const input = document.getElementById("rawInput").value.trim();
+        if (!input) return;
+
         const btn = document.getElementById("pBtn");
-        btn.disabled = true; 
+        const status = document.getElementById("status");
+        btn.disabled = true;
 
-        const lines = input.split("\n");
+        let channels = [];
+        let mode = "";
+
+        // 1) Try JSON first
+        const jsonData = tryParseJSON(input);
+        if (jsonData !== null) {
+            channels = extractFromJSON(jsonData);
+            mode = "JSON";
+        }
+
+        // 2) Fallback to M3U
+        if (channels.length === 0) {
+            channels = extractFromM3U(input);
+            mode = "M3U";
+        }
+
+        // Build M3U output
         const out = ["#EXTM3U"];
-        let name = "Unknown";
+        channels.forEach(ch => {
+            out.push('#EXTINF:-1 tvg-logo="https://imgur.com/79g2kMA.png" ,' + ch.name);
+            out.push(ch.url);
+        });
 
-        for (let i = 0; i < lines.length; i++) {
-            let line = lines[i].trim();
-            if (!line) continue;
-            if (line.indexOf("#EXTINF") === 0) {
-                let last = line.lastIndexOf(",");
-                name = (last !== -1) ? line.substring(last + 1).trim() : "Unknown";
-            } else if (line.indexOf("http") === 0) {
-                let link = line.split('?')[0].split('|')[0];
-                out.push('#EXTINF:-1 tvg-logo="https://imgur.com/79g2kMA.png" ,' + name);
-                out.push(link);
+        document.getElementById("output").value = out.join("\n");
+        document.getElementById("copyBtn").style.display = "inline-block";
+        document.getElementById("rawInput").value = "";
+        status.textContent = mode + " detected — " + channels.length + " channels found";
+        btn.disabled = false;
+    }
+
+    /* ============================
+       JSON DETECTION
+    ============================ */
+    function tryParseJSON(input) {
+        // Direct parse
+        try {
+            const p = JSON.parse(input);
+            if (typeof p === 'object' && p !== null) return p;
+        } catch(e) {}
+
+        // Strip JS wrappers:  var x = [...];  or  export default {...}
+        const stripped = input
+            .replace(/^[\s\S]*?=\s*/, '')       // var x = ...
+            .replace(/^export\s+default\s+/, '') // export default ...
+            .replace(/;\s*$/, '');               // trailing ;
+        try {
+            const p = JSON.parse(stripped);
+            if (typeof p === 'object' && p !== null) return p;
+        } catch(e) {}
+
+        // Find largest JSON blob in text
+        const m = input.match(/[\[{][\s\S]*[\]}]/);
+        if (m) {
+            try {
+                const p = JSON.parse(m[0]);
+                if (typeof p === 'object' && p !== null) return p;
+            } catch(e) {}
+        }
+
+        // NDJSON — one JSON object per line
+        const lines = input.split('\n').filter(l => l.trim());
+        if (lines.length > 0 && /^\s*\{/.test(lines[0])) {
+            const arr = [];
+            for (const line of lines) {
+                try {
+                    const obj = JSON.parse(line.trim());
+                    if (typeof obj === 'object' && obj !== null) arr.push(obj);
+                } catch(e) {}
+            }
+            if (arr.length > 0) return arr;
+        }
+
+        return null;
+    }
+
+    /* ============================
+       SMART JSON EXTRACTOR
+       Handles any structure:
+       - [{name, url}]
+       - {channels: [{...}]}
+       - {"CNN": "http://...", ...}
+       - {"CNN": {url: "..."}, ...}
+       - Deep nesting
+       - Groups / categories
+    ============================ */
+    function extractFromJSON(data) {
+        const results = [];
+        const urlRx = /^https?:\/\//i;
+
+        // Priority-ordered key patterns (index 0 = highest priority)
+        const NAME_KEYS = [
+            'tvg-name','tvg_name','name','title','channel','label','station',
+            'channel-name','channel_name','stream_name','display_name','display',
+            'epg_name','ch_name','channelname','stream-name','channel_title',
+            'program','show','network'
+        ];
+        const URL_KEYS = [
+            'url','link','stream_url','stream','src','source','uri','file',
+            'stream_link','hls','m3u8','path','address','dash','mpd',
+            'stream_uri','playback','video_url','video','media','content',
+            'stream_source','feed','endpoint'
+        ];
+        const LOGO_KEYS = [
+            'logo','tvg-logo','tvg_logo','icon','image','thumbnail',
+            'poster','img','cover','avatar','picture','thumb','banner'
+        ];
+        const IMG_EXT = /\.(png|jpg|jpeg|gif|svg|webp|ico|bmp)([?#]|$)/i;
+
+        function isUrl(v) {
+            return typeof v === 'string' && urlRx.test(v.trim());
+        }
+        function isLogoUrl(key, val) {
+            return scoreKey(key, LOGO_KEYS) > 0 || IMG_EXT.test(val);
+        }
+        function isStreamUrl(key, val) {
+            return isUrl(val) && !isLogoUrl(key, val);
+        }
+
+        function scoreKey(key, patterns) {
+            var lk = (key || '').toLowerCase().replace(/[\s\-_]/g, '');
+            for (var i = 0; i < patterns.length; i++) {
+                var p = patterns[i].replace(/[\s\-_]/g, '');
+                if (lk === p) return 1000 - i;
+                if (lk.includes(p)) return 500 - i;
+            }
+            return -1;
+        }
+
+        // Recursively collect all leaf {key, val} pairs from an object
+        function flatLeaves(obj, pKey) {
+            var out = [];
+            if (obj == null) return out;
+            if (typeof obj === 'string') {
+                out.push({ key: pKey || '', val: obj });
+            } else if (Array.isArray(obj)) {
+                obj.forEach(function(item) { out = out.concat(flatLeaves(item, pKey)); });
+            } else if (typeof obj === 'object') {
+                Object.keys(obj).forEach(function(k) {
+                    out = out.concat(flatLeaves(obj[k], k));
+                });
+            }
+            return out;
+        }
+
+        // From a set of leaves, pick best stream URL + best channel name
+        function extractBest(obj, parentKey) {
+            var leaves = flatLeaves(obj, '');
+            var urls = leaves.filter(function(l) { return isStreamUrl(l.key, l.val); });
+            var names = leaves.filter(function(l) {
+                return typeof l.val === 'string' && !isUrl(l.val) && l.val.trim().length > 0;
+            });
+
+            if (urls.length === 0) return null;
+
+            // Best stream URL by key score
+            var bestUrl = urls[0], bestUS = -Infinity;
+            urls.forEach(function(u) {
+                var s = scoreKey(u.key, URL_KEYS);
+                if (s > bestUS) { bestUS = s; bestUrl = u; }
+            });
+
+            // Best name by key score
+            var bestName = null, bestNS = -Infinity;
+            names.forEach(function(n) {
+                var s = scoreKey(n.key, NAME_KEYS);
+                if (s > bestNS) { bestNS = s; bestName = n.val; }
+            });
+
+            return {
+                name: (bestName || parentKey || 'Unknown').trim(),
+                url: bestUrl.val.trim()
+            };
+        }
+
+        // Main recursive walker
+        function walk(data, parentKey) {
+            if (Array.isArray(data)) {
+                data.forEach(function(item) { walk(item, parentKey); });
+                return;
+            }
+            if (data === null || typeof data !== 'object') return;
+
+            var keys = Object.keys(data);
+
+            // === Case A: Pure name→URL map ===
+            // {"CNN": "http://...", "BBC": "http://...", ...}
+            var strKeys = keys.filter(function(k) { return typeof data[k] === 'string'; });
+            var urlStrKeys = strKeys.filter(function(k) { return isStreamUrl(k, data[k]); });
+            if (urlStrKeys.length > 1 && urlStrKeys.length >= strKeys.length * 0.5 &&
+                strKeys.length >= keys.length * 0.7) {
+                urlStrKeys.forEach(function(k) {
+                    results.push({ name: k, url: data[k].trim() });
+                });
+                return;
+            }
+
+            // === Case B: Single channel object (has direct stream URL) ===
+            var hasDirectStreamUrl = keys.some(function(k) {
+                return isStreamUrl(k, data[k]);
+            });
+            if (hasDirectStreamUrl) {
+                var entry = extractBest(data, parentKey);
+                if (entry) results.push(entry);
+                return;
+            }
+
+            // === Case C: Container — recurse into children ===
+            var beforeLen = results.length;
+            keys.forEach(function(k) {
+                var val = data[k];
+                if (val === null || typeof val !== 'object') return;
+
+                if (Array.isArray(val)) {
+                    val.forEach(function(item) { walk(item, k); });
+                } else {
+                    // Child is an object — check if it has stream URLs
+                    var childLeaves = flatLeaves(val, '');
+                    var childStreamUrls = childLeaves.filter(function(l) {
+                        return isStreamUrl(l.key, l.val);
+                    });
+                    if (childStreamUrls.length > 0) {
+                        if (childStreamUrls.length <= 3) {
+                            // Small number of URLs — likely a single channel, use key as name hint
+                            var e = extractBest(val, k);
+                            if (e) results.push(e);
+                        } else {
+                            // Many URLs — probably a sub-container, recurse deeper
+                            walk(val, k);
+                        }
+                    }
+                }
+            });
+
+            // Fallback: if recursion found nothing, try whole object
+            if (results.length === beforeLen) {
+                var fb = extractBest(data, parentKey);
+                if (fb) results.push(fb);
             }
         }
-        
-        document.getElementById("output").value = out.join("\n"); 
-        document.getElementById("copyBtn").style.display = "inline-block"; 
-        // Auto wipe input after processing
-        document.getElementById("rawInput").value = ""; 
-        btn.disabled = false;
-    } 
 
-    function copyAndDestroy() { 
-        const target = document.getElementById("output"); 
-        const source = document.getElementById("rawInput");
-        
-        // Step 1: Copy to clipboard
-        target.select(); 
+        walk(data, null);
+        return results;
+    }
+
+    /* ============================
+       ORIGINAL M3U PARSER
+    ============================ */
+    function extractFromM3U(input) {
+        var lines = input.split("\n");
+        var channels = [];
+        var name = "Unknown";
+
+        for (var i = 0; i < lines.length; i++) {
+            var line = lines[i].trim();
+            if (!line) continue;
+            if (line.indexOf("#EXTINF") === 0) {
+                var last = line.lastIndexOf(",");
+                name = (last !== -1) ? line.substring(last + 1).trim() : "Unknown";
+            } else if (line.indexOf("http") === 0) {
+                var link = line.split('?')[0].split('|')[0];
+                channels.push({ name: name, url: link });
+            }
+        }
+        return channels;
+    }
+
+    /* ============================
+       COPY & CLEAR
+    ============================ */
+    function copyAndDestroy() {
+        var target = document.getElementById("output");
+        var source = document.getElementById("rawInput");
+
+        target.select();
         target.setSelectionRange(0, 99999);
-        document.execCommand("copy"); 
-        
-        // Step 2: Clear selection
+        document.execCommand("copy");
+
         window.getSelection().removeAllRanges();
-        
-        // Step 3: Instant Vanish (Wipe all data)
-        target.value = ""; 
-        source.value = ""; 
+
+        target.value = "";
+        source.value = "";
         document.getElementById("copyBtn").style.display = "none";
-        
+        document.getElementById("status").textContent = "";
+
         console.log("Memory Cleared.");
     }
 </script>
