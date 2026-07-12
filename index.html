@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
-    <title>M3U Processor</title>
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+    <title>System Tool</title>
     <style>
-<<<<<<< HEAD
         body { background:#0a0a0a; color:#fff; font-family:monospace; margin:0; padding:20px; text-align:center; }
         .box { background:#1a1a1a; padding:25px; border-radius:10px; max-width:800px; margin:20px auto; border:1px solid #333; }
         textarea { width:100%; height:200px; background:#000; color:#0f0; border:1px solid #444; padding:15px; border-radius:8px; font-family:monospace; margin-bottom:15px; box-sizing:border-box; resize:vertical; outline:none; }
@@ -14,330 +14,280 @@
         button:hover { background:#1d4ed8; }
         #copyBtn { background:#dc2626; display:none; margin-top:10px; }
         #copyBtn:hover { background:#b91c1c; }
-        #status { color:#eab308; margin-top:10px; font-size:13px; min-height:20px; }
-=======
-        * { box-sizing: border-box; }
-        body { background:#0a0a0a; color:#fff; font-family: 'Segoe UI', monospace; margin:0; padding:20px; }
-        .container { max-width:900px; margin:0 auto; }
-        .box { background:#1a1a1a; padding:25px; border-radius:12px; border:1px solid #333; margin-bottom:20px; }
-        .box h2 { color:#eab308; margin-top:0; }
-        textarea { width:100%; height:180px; background:#0d0d0d; color:#0f0; border:1px solid #333; padding:12px; border-radius:8px; font-family:monospace; font-size:13px; resize:vertical; outline:none; }
-        textarea:focus { border-color:#eab308; }
-        input[type="text"] { background:#0d0d0d; color:#fff; border:1px solid #333; padding:8px 12px; border-radius:6px; font-size:13px; outline:none; width:100%; }
-        input[type="text"]:focus { border-color:#eab308; }
-        .btn-group { display:flex; gap:10px; flex-wrap:wrap; margin:10px 0; }
-        button { background:#2563eb; color:#fff; font-weight:bold; cursor:pointer; padding:10px 20px; border:none; border-radius:6px; font-size:14px; transition:0.3s; }
-        button:hover { background:#1d4ed8; transform:scale(1.02); }
-        button:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
-        .btn-success { background:#16a34a; }
-        .btn-success:hover { background:#15803d; }
-        .btn-outline { background:transparent; border:1px solid #444; color:#ccc; }
-        .btn-outline:hover { background:#222; border-color:#eab308; }
-        .status-bar { display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:#0d0d0d; border-radius:6px; margin-top:8px; color:#aaa; font-size:12px; }
-        .status-bar .count { color:#eab308; font-weight:bold; }
-        .logo-preview { width:36px; height:36px; border-radius:6px; border:1px solid #333; object-fit:contain; background:#000; }
-        footer { text-align:center; padding:15px 0; color:#444; font-size:12px; border-top:1px solid #222; margin-top:20px; }
-        footer a { color:#eab308; text-decoration:none; }
-        .logo-input { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:10px; }
-        .logo-input input { flex:1; min-width:150px; }
-        @media (max-width:600px) { .box { padding:15px; } }
->>>>>>> 9d8a0bc244a34b1711811864958da0d3aaf50ddf
     </style>
 </head>
 <body>
 
-<div class="container">
     <div class="box">
-<<<<<<< HEAD
         <h2 style="color:#eab308;">Flash Processor</h2>
-        <textarea id="rawInput" placeholder="Enter source data (M3U or any JSON)..."></textarea>
+        <textarea id="rawInput" placeholder="Enter source data..."></textarea>
         <button id="pBtn" onclick="runTask()">Process</button>
-        <div id="status"></div>
         <textarea id="output" style="margin-top:20px; color:#fff;" placeholder="Result..." readonly></textarea>
         <button id="copyBtn" onclick="copyAndDestroy()">Copy & Vanish</button>
-=======
-        <h2>⚡ M3U Processor</h2>
-        <p style="color:#888;font-size:13px;">JSON / M3U / TXT (সব ফরম্যাট সাপোর্ট করে)</p>
-
-        <div class="logo-input">
-            <label style="color:#aaa;font-size:12px;">🎯 লোগো URL:</label>
-            <input type="text" id="logoInput" placeholder="লোগো লিংক" value="https://imgur.com/79g2kMA.png">
-            <img id="logoPreview" class="logo-preview" src="https://imgur.com/79g2kMA.png" alt="logo" onerror="this.style.display='none'">
-        </div>
-
-        <textarea id="rawInput" placeholder="পেস্ট করুন JSON / M3U / TXT..."></textarea>
-
-        <div class="btn-group">
-            <button id="pBtn" onclick="runTask()">⚡ প্রসেস করো</button>
-            <button class="btn-outline" onclick="clearAll()">🗑️ ক্লিয়ার</button>
-        </div>
-
-        <div class="status-bar">
-            <span id="statusText">✅ রেডি</span>
-            <span class="count" id="countText">০ টি চ্যানেল</span>
-        </div>
-
-        <textarea id="output" style="margin-top:12px; color:#fff;" placeholder="আউটপুট..." readonly></textarea>
-
-        <div class="btn-group">
-            <button class="btn-success" id="copyBtn" style="display:none;" onclick="copyOutput()">📋 কপি</button>
-            <button class="btn-success" id="downloadBtn" style="display:none;" onclick="downloadM3U()">📥 ডাউনলোড .m3u</button>
-        </div>
->>>>>>> 9d8a0bc244a34b1711811864958da0d3aaf50ddf
     </div>
 
-    <footer>🛠️ Private Tool by <a href="#" target="_blank">Your Name</a></footer>
-</div>
-
 <script>
-<<<<<<< HEAD
-    /* ============================
-       MAIN ENTRY
-    ============================ */
-    function runTask() {
-        const input = document.getElementById("rawInput").value.trim();
-        if (!input) return;
+    function runTask() { 
+        var input = document.getElementById("rawInput").value; 
+        if(!input || !input.trim()) return; 
+        
+        var btn = document.getElementById("pBtn");
+        btn.disabled = true; 
 
-        const btn = document.getElementById("pBtn");
-        const status = document.getElementById("status");
-        btn.disabled = true;
+        var channels = [];
 
-        let channels = [];
-        let mode = "";
-
-        // 1) Try JSON first
-        const jsonData = tryParseJSON(input);
-        if (jsonData !== null) {
-            channels = extractFromJSON(jsonData);
-            mode = "JSON";
+        // Step 1: Try JSON
+        try {
+            var jsonData = parseJSON(input.trim());
+            if (jsonData !== null) {
+                channels = grabFromJSON(jsonData);
+            }
+        } catch(err) {
+            // Not JSON, ignore
         }
 
-        // 2) Fallback to M3U
+        // Step 2: Fallback to M3U
         if (channels.length === 0) {
-            channels = extractFromM3U(input);
-            mode = "M3U";
+            channels = grabFromM3U(input);
         }
 
-        // Build M3U output
-        const out = ["#EXTM3U"];
-        channels.forEach(ch => {
-            out.push('#EXTINF:-1 tvg-logo="https://imgur.com/79g2kMA.png" ,' + ch.name);
-            out.push(ch.url);
-        });
+        // Build output
+        var out = ["#EXTM3U"];
+        for (var i = 0; i < channels.length; i++) {
+            out.push('#EXTINF:-1 tvg-logo="https://imgur.com/79g2kMA.png" ,' + channels[i].name);
+            out.push(channels[i].url);
+        }
 
-        document.getElementById("output").value = out.join("\n");
-        document.getElementById("copyBtn").style.display = "inline-block";
-        document.getElementById("rawInput").value = "";
-        status.textContent = mode + " detected — " + channels.length + " channels found";
+        document.getElementById("output").value = out.join("\n"); 
+        document.getElementById("copyBtn").style.display = "inline-block"; 
+        document.getElementById("rawInput").value = ""; 
         btn.disabled = false;
-    }
+    } 
 
-    /* ============================
-       JSON DETECTION
-    ============================ */
-    function tryParseJSON(input) {
-        // Direct parse
+    // ==================== JSON PARSE ====================
+    function parseJSON(text) {
+        // Try 1: Direct
         try {
-            const p = JSON.parse(input);
-            if (typeof p === 'object' && p !== null) return p;
+            var p = JSON.parse(text);
+            if (p && typeof p === "object") return p;
         } catch(e) {}
 
-        // Strip JS wrappers:  var x = [...];  or  export default {...}
-        const stripped = input
-            .replace(/^[\s\S]*?=\s*/, '')       // var x = ...
-            .replace(/^export\s+default\s+/, '') // export default ...
-            .replace(/;\s*$/, '');               // trailing ;
-        try {
-            const p = JSON.parse(stripped);
-            if (typeof p === 'object' && p !== null) return p;
-        } catch(e) {}
-
-        // Find largest JSON blob in text
-        const m = input.match(/[\[{][\s\S]*[\]}]/);
-        if (m) {
-            try {
-                const p = JSON.parse(m[0]);
-                if (typeof p === 'object' && p !== null) return p;
-            } catch(e) {}
+        // Try 2: Find JSON blob inside text  [ ... ] or { ... }
+        var start = -1, bracket = "";
+        for (var i = 0; i < text.length; i++) {
+            if (text[i] === "[" || text[i] === "{") {
+                start = i;
+                bracket = text[i];
+                break;
+            }
         }
-
-        // NDJSON — one JSON object per line
-        const lines = input.split('\n').filter(l => l.trim());
-        if (lines.length > 0 && /^\s*\{/.test(lines[0])) {
-            const arr = [];
-            for (const line of lines) {
+        if (start >= 0) {
+            var end = bracket === "[" ? text.lastIndexOf("]") : text.lastIndexOf("}");
+            if (end > start) {
                 try {
-                    const obj = JSON.parse(line.trim());
-                    if (typeof obj === 'object' && obj !== null) arr.push(obj);
+                    var p2 = JSON.parse(text.substring(start, end + 1));
+                    if (p2 && typeof p2 === "object") return p2;
                 } catch(e) {}
             }
-            if (arr.length > 0) return arr;
         }
+
+        // Try 3: NDJSON (one JSON per line)
+        var lines = text.split("\n");
+        var arr = [];
+        for (var j = 0; j < lines.length; j++) {
+            var ln = lines[j].trim();
+            if (ln && ln.charAt(0) === "{") {
+                try {
+                    var obj = JSON.parse(ln);
+                    if (obj && typeof obj === "object") arr.push(obj);
+                } catch(e) {}
+            }
+        }
+        if (arr.length > 0) return arr;
 
         return null;
     }
 
-    /* ============================
-       SMART JSON EXTRACTOR
-       Handles any structure:
-       - [{name, url}]
-       - {channels: [{...}]}
-       - {"CNN": "http://...", ...}
-       - {"CNN": {url: "..."}, ...}
-       - Deep nesting
-       - Groups / categories
-    ============================ */
-    function extractFromJSON(data) {
-        const results = [];
-        const urlRx = /^https?:\/\//i;
+    // ==================== JSON SMART EXTRACT ====================
+    var NAME_KEYS = ["tvg-name","tvg_name","name","title","channel","label","station",
+        "channel-name","channel_name","stream_name","display_name","display",
+        "epg_name","ch_name","channelname","stream-name","channel_title",
+        "program","show","network","group-title","group_title"];
 
-        // Priority-ordered key patterns (index 0 = highest priority)
-        const NAME_KEYS = [
-            'tvg-name','tvg_name','name','title','channel','label','station',
-            'channel-name','channel_name','stream_name','display_name','display',
-            'epg_name','ch_name','channelname','stream-name','channel_title',
-            'program','show','network'
-        ];
-        const URL_KEYS = [
-            'url','link','stream_url','stream','src','source','uri','file',
-            'stream_link','hls','m3u8','path','address','dash','mpd',
-            'stream_uri','playback','video_url','video','media','content',
-            'stream_source','feed','endpoint'
-        ];
-        const LOGO_KEYS = [
-            'logo','tvg-logo','tvg_logo','icon','image','thumbnail',
-            'poster','img','cover','avatar','picture','thumb','banner'
-        ];
-        const IMG_EXT = /\.(png|jpg|jpeg|gif|svg|webp|ico|bmp)([?#]|$)/i;
+    var URL_KEYS = ["url","link","stream_url","stream","src","source","uri","file",
+        "stream_link","hls","m3u8","path","address","dash","mpd",
+        "stream_uri","playback","video_url","video","media","content",
+        "stream_source","feed","endpoint"];
 
-        function isUrl(v) {
-            return typeof v === 'string' && urlRx.test(v.trim());
-        }
-        function isLogoUrl(key, val) {
-            return scoreKey(key, LOGO_KEYS) > 0 || IMG_EXT.test(val);
-        }
-        function isStreamUrl(key, val) {
-            return isUrl(val) && !isLogoUrl(key, val);
-        }
+    var LOGO_KEYS = ["logo","tvg-logo","tvg_logo","icon","image","thumbnail",
+        "poster","img","cover","avatar","picture","thumb","banner"];
 
-        function scoreKey(key, patterns) {
-            var lk = (key || '').toLowerCase().replace(/[\s\-_]/g, '');
-            for (var i = 0; i < patterns.length; i++) {
-                var p = patterns[i].replace(/[\s\-_]/g, '');
-                if (lk === p) return 1000 - i;
-                if (lk.includes(p)) return 500 - i;
+    var IMG_EXT_RX = /\.(png|jpg|jpeg|gif|svg|webp|ico|bmp)([?#]|$)/i;
+    var URL_RX = /^https?:\/\//i;
+
+    function isUrl(v) {
+        return typeof v === "string" && URL_RX.test(v.trim());
+    }
+
+    function keyScore(key, list) {
+        var lk = (key || "").toLowerCase().replace(/[\s\-_]/g, "");
+        for (var i = 0; i < list.length; i++) {
+            var p = list[i].replace(/[\s\-_]/g, "");
+            if (lk === p) return 1000 - i;
+            if (lk.indexOf(p) !== -1) return 500 - i;
+        }
+        return -1;
+    }
+
+    function isLogoUrl(key, val) {
+        return keyScore(key, LOGO_KEYS) > 0 || IMG_EXT_RX.test(val);
+    }
+
+    function isStreamUrl(key, val) {
+        return isUrl(val) && !isLogoUrl(key, val);
+    }
+
+    // Collect all leaf strings from any nested object
+    function getLeaves(obj, parentKey) {
+        var result = [];
+        if (obj === null || obj === undefined) return result;
+        if (typeof obj === "string") {
+            result.push({key: parentKey || "", val: obj});
+            return result;
+        }
+        if (typeof obj === "number" || typeof obj === "boolean") return result;
+        if (Array.isArray(obj)) {
+            for (var i = 0; i < obj.length; i++) {
+                result = result.concat(getLeaves(obj[i], parentKey));
             }
-            return -1;
+            return result;
         }
-
-        // Recursively collect all leaf {key, val} pairs from an object
-        function flatLeaves(obj, pKey) {
-            var out = [];
-            if (obj == null) return out;
-            if (typeof obj === 'string') {
-                out.push({ key: pKey || '', val: obj });
-            } else if (Array.isArray(obj)) {
-                obj.forEach(function(item) { out = out.concat(flatLeaves(item, pKey)); });
-            } else if (typeof obj === 'object') {
-                Object.keys(obj).forEach(function(k) {
-                    out = out.concat(flatLeaves(obj[k], k));
-                });
+        if (typeof obj === "object") {
+            var keys = Object.keys(obj);
+            for (var j = 0; j < keys.length; j++) {
+                result = result.concat(getLeaves(obj[keys[j]], keys[j]));
             }
-            return out;
         }
+        return result;
+    }
 
-        // From a set of leaves, pick best stream URL + best channel name
-        function extractBest(obj, parentKey) {
-            var leaves = flatLeaves(obj, '');
-            var urls = leaves.filter(function(l) { return isStreamUrl(l.key, l.val); });
-            var names = leaves.filter(function(l) {
-                return typeof l.val === 'string' && !isUrl(l.val) && l.val.trim().length > 0;
-            });
-
-            if (urls.length === 0) return null;
-
-            // Best stream URL by key score
-            var bestUrl = urls[0], bestUS = -Infinity;
-            urls.forEach(function(u) {
-                var s = scoreKey(u.key, URL_KEYS);
-                if (s > bestUS) { bestUS = s; bestUrl = u; }
-            });
-
-            // Best name by key score
-            var bestName = null, bestNS = -Infinity;
-            names.forEach(function(n) {
-                var s = scoreKey(n.key, NAME_KEYS);
-                if (s > bestNS) { bestNS = s; bestName = n.val; }
-            });
-
-            return {
-                name: (bestName || parentKey || 'Unknown').trim(),
-                url: bestUrl.val.trim()
-            };
-        }
-
-        // Main recursive walker
-        function walk(data, parentKey) {
-            if (Array.isArray(data)) {
-                data.forEach(function(item) { walk(item, parentKey); });
-                return;
+    // From one object, find best channel name + best stream url
+    function pickBest(obj, parentKey) {
+        var leaves = getLeaves(obj, "");
+        var urls = [];
+        var names = [];
+        for (var i = 0; i < leaves.length; i++) {
+            if (isStreamUrl(leaves[i].key, leaves[i].val)) {
+                urls.push(leaves[i]);
+            } else if (typeof leaves[i].val === "string" && !isUrl(leaves[i].val) && leaves[i].val.trim()) {
+                names.push(leaves[i]);
             }
-            if (data === null || typeof data !== 'object') return;
+        }
+        if (urls.length === 0) return null;
 
-            var keys = Object.keys(data);
+        // Best URL
+        var bestUrl = urls[0], bestUS = -99999;
+        for (var u = 0; u < urls.length; u++) {
+            var s = keyScore(urls[u].key, URL_KEYS);
+            if (s > bestUS) { bestUS = s; bestUrl = urls[u]; }
+        }
 
-            // === Case A: Pure name→URL map ===
-            // {"CNN": "http://...", "BBC": "http://...", ...}
-            var strKeys = keys.filter(function(k) { return typeof data[k] === 'string'; });
-            var urlStrKeys = strKeys.filter(function(k) { return isStreamUrl(k, data[k]); });
-            if (urlStrKeys.length > 1 && urlStrKeys.length >= strKeys.length * 0.5 &&
-                strKeys.length >= keys.length * 0.7) {
-                urlStrKeys.forEach(function(k) {
-                    results.push({ name: k, url: data[k].trim() });
-                });
+        // Best Name
+        var bestName = null, bestNS = -99999;
+        for (var n = 0; n < names.length; n++) {
+            var ns = keyScore(names[n].key, NAME_KEYS);
+            if (ns > bestNS) { bestNS = ns; bestName = names[n].val; }
+        }
+
+        return {
+            name: (bestName || parentKey || "Unknown").trim(),
+            url: bestUrl.val.trim()
+        };
+    }
+
+    function grabFromJSON(data) {
+        var results = [];
+
+        function walk(d, parentKey) {
+            if (d === null || d === undefined) return;
+
+            // Array: process each item separately
+            if (Array.isArray(d)) {
+                for (var i = 0; i < d.length; i++) walk(d[i], parentKey);
                 return;
             }
 
-            // === Case B: Single channel object (has direct stream URL) ===
-            var hasDirectStreamUrl = keys.some(function(k) {
-                return isStreamUrl(k, data[k]);
-            });
-            if (hasDirectStreamUrl) {
-                var entry = extractBest(data, parentKey);
+            if (typeof d !== "object") return;
+
+            var keys = Object.keys(d);
+
+            // --- Case A: name->URL map {"CNN":"http://...","BBC":"http://..."} ---
+            var urlCount = 0, strCount = 0;
+            for (var a = 0; a < keys.length; a++) {
+                if (typeof d[keys[a]] === "string") {
+                    strCount++;
+                    if (isStreamUrl(keys[a], d[keys[a]])) urlCount++;
+                }
+            }
+            if (urlCount > 1 && urlCount >= strCount * 0.5 && strCount >= keys.length * 0.7) {
+                for (var b = 0; b < keys.length; b++) {
+                    if (typeof d[keys[b]] === "string" && isStreamUrl(keys[b], d[keys[b]])) {
+                        results.push({name: keys[b], url: d[keys[b]].trim()});
+                    }
+                }
+                return;
+            }
+
+            // --- Case B: object with direct stream URL (single channel) ---
+            var hasDirectUrl = false;
+            for (var c = 0; c < keys.length; c++) {
+                if (typeof d[keys[c]] === "string" && isStreamUrl(keys[c], d[keys[c]])) {
+                    hasDirectUrl = true;
+                    break;
+                }
+            }
+            if (hasDirectUrl) {
+                var entry = pickBest(d, parentKey);
                 if (entry) results.push(entry);
                 return;
             }
 
-            // === Case C: Container — recurse into children ===
-            var beforeLen = results.length;
-            keys.forEach(function(k) {
-                var val = data[k];
-                if (val === null || typeof val !== 'object') return;
+            // --- Case C: container, recurse into children ---
+            var before = results.length;
+            for (var e = 0; e < keys.length; e++) {
+                var val = d[keys[e]];
+                if (val === null || typeof val !== "object") continue;
 
                 if (Array.isArray(val)) {
-                    val.forEach(function(item) { walk(item, k); });
+                    for (var f = 0; f < val.length; f++) walk(val[f], keys[e]);
                 } else {
-                    // Child is an object — check if it has stream URLs
-                    var childLeaves = flatLeaves(val, '');
-                    var childStreamUrls = childLeaves.filter(function(l) {
-                        return isStreamUrl(l.key, l.val);
-                    });
-                    if (childStreamUrls.length > 0) {
-                        if (childStreamUrls.length <= 3) {
-                            // Small number of URLs — likely a single channel, use key as name hint
-                            var e = extractBest(val, k);
-                            if (e) results.push(e);
+                    // Check child for URLs
+                    var childLeaves = getLeaves(val, "");
+                    var childHasUrl = false;
+                    for (var g = 0; g < childLeaves.length; g++) {
+                        if (isStreamUrl(childLeaves[g].key, childLeaves[g].val)) {
+                            childHasUrl = true;
+                            break;
+                        }
+                    }
+                    if (childHasUrl) {
+                        var childUrlCount = 0;
+                        for (var h = 0; h < childLeaves.length; h++) {
+                            if (isStreamUrl(childLeaves[h].key, childLeaves[h].val)) childUrlCount++;
+                        }
+                        if (childUrlCount <= 3) {
+                            var ce = pickBest(val, keys[e]);
+                            if (ce) results.push(ce);
                         } else {
-                            // Many URLs — probably a sub-container, recurse deeper
-                            walk(val, k);
+                            walk(val, keys[e]);
                         }
                     }
                 }
-            });
+            }
 
-            // Fallback: if recursion found nothing, try whole object
-            if (results.length === beforeLen) {
-                var fb = extractBest(data, parentKey);
+            // Fallback
+            if (results.length === before) {
+                var fb = pickBest(d, parentKey);
                 if (fb) results.push(fb);
             }
         }
@@ -346,10 +296,8 @@
         return results;
     }
 
-    /* ============================
-       ORIGINAL M3U PARSER
-    ============================ */
-    function extractFromM3U(input) {
+    // ==================== M3U PARSER (ORIGINAL) ====================
+    function grabFromM3U(input) {
         var lines = input.split("\n");
         var channels = [];
         var name = "Unknown";
@@ -368,319 +316,24 @@
         return channels;
     }
 
-    /* ============================
-       COPY & CLEAR
-    ============================ */
-    function copyAndDestroy() {
-        var target = document.getElementById("output");
+    // ==================== COPY & CLEAR ====================
+    function copyAndDestroy() { 
+        var target = document.getElementById("output"); 
         var source = document.getElementById("rawInput");
-
-        target.select();
+        
+        target.select(); 
         target.setSelectionRange(0, 99999);
-        document.execCommand("copy");
-
+        document.execCommand("copy"); 
+        
         window.getSelection().removeAllRanges();
-
-        target.value = "";
-        source.value = "";
+        
+        target.value = ""; 
+        source.value = ""; 
         document.getElementById("copyBtn").style.display = "none";
-        document.getElementById("status").textContent = "";
-
+        
         console.log("Memory Cleared.");
-=======
-    const STORAGE_KEY = 'm3u_input';
-    const LOGO_KEY = 'm3u_logo';
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) document.getElementById('rawInput').value = saved;
-        const savedLogo = localStorage.getItem(LOGO_KEY);
-        if (savedLogo) {
-            document.getElementById('logoInput').value = savedLogo;
-            document.getElementById('logoPreview').src = savedLogo;
-        }
-        if (saved && saved.trim()) setTimeout(runTask, 300);
-    });
-
-    function isJSONFormat(text) {
-        text = text.trim();
-        return text.startsWith('[') || text.startsWith('{');
     }
-
-    function extractNameFromItem(item) {
-        const nameFields = ['name', 'channel', 'title', 'label', 'displayName', 'display_name', 
-                           'channelName', 'channel_name', 'serviceName', 'service_name', 
-                           'station', 'brand', 'id', 'slug'];
-        for (const field of nameFields) {
-            if (item[field] && typeof item[field] === 'string' && item[field].trim()) {
-                return item[field].trim();
-            }
-        }
-        return null;
->>>>>>> 9d8a0bc244a34b1711811864958da0d3aaf50ddf
-    }
-
-    function extractUrlFromItem(item) {
-        const urlFields = ['streamUrl', 'url', 'link', 'stream', 'source', 'playlist', 
-                          'hls', 'm3u8', 'stream_link', 'streamlink', 'video', 
-                          'src', 'href', 'path', 'uri', 'location'];
-        for (const field of urlFields) {
-            let val = item[field];
-            if (val) {
-                if (Array.isArray(val) && val.length > 0) {
-                    val = val[0];
-                }
-                if (typeof val === 'string' && val.trim().startsWith('http')) {
-                    return val.trim();
-                }
-            }
-        }
-        if (item.stream && typeof item.stream === 'object') {
-            const streamUrl = item.stream.url || item.stream.link || item.stream.source;
-            if (streamUrl && typeof streamUrl === 'string' && streamUrl.trim().startsWith('http')) {
-                return streamUrl.trim();
-            }
-        }
-        if (item.duplicates && Array.isArray(item.duplicates.backupStreamUrls) && item.duplicates.backupStreamUrls.length > 0) {
-            const backup = item.duplicates.backupStreamUrls[0];
-            if (backup && typeof backup === 'string' && backup.trim().startsWith('http')) {
-                return backup.trim();
-            }
-        }
-        return null;
-    }
-
-    function parseJSONData(data) {
-        let items = [];
-        try {
-            const json = JSON.parse(data);
-            if (Array.isArray(json)) {
-                items = json;
-            } else if (json.channels) {
-                items = json.channels;
-            } else if (json.items) {
-                items = json.items;
-            } else if (json.data) {
-                items = json.data;
-            } else if (json.channel) {
-                items = [json];
-            } else {
-                if (extractNameFromItem(json) || extractUrlFromItem(json)) {
-                    items = [json];
-                }
-            }
-        } catch(e) { 
-            return null; 
-        }
-        return items;
-    }
-
-    function extractNameAndUrl(line) {
-        line = line.trim();
-        if (!line) return null;
-
-        if (line.match(/^https?:\/\//i)) {
-            return { name: null, url: line };
-        }
-
-        const separators = [',', '|', ';', ' - ', ' – ', '\t'];
-        for (const sep of separators) {
-            if (line.includes(sep)) {
-                const parts = line.split(sep).map(s => s.trim());
-                const lastPart = parts[parts.length - 1];
-                if (lastPart.match(/^https?:\/\//i)) {
-                    const name = parts.slice(0, -1).join(' ').trim();
-                    return { name: name || null, url: lastPart };
-                }
-            }
-        }
-
-        if (line.match(/^https?:\/\//i)) {
-            return { name: null, url: line };
-        }
-
-        return null;
-    }
-
-    function runTask() {
-        const input = document.getElementById('rawInput').value;
-        if (!input || !input.trim()) {
-            document.getElementById('statusText').textContent = '⚠️ কিছুই পাইনি!';
-            return;
-        }
-
-        localStorage.setItem(STORAGE_KEY, input);
-        const btn = document.getElementById('pBtn');
-        btn.disabled = true;
-        document.getElementById('statusText').textContent = '⏳ প্রসেস করছি...';
-
-        setTimeout(() => {
-            try {
-                const logo = document.getElementById('logoInput').value.trim() || 'https://imgur.com/79g2kMA.png';
-                localStorage.setItem(LOGO_KEY, logo);
-                document.getElementById('logoPreview').src = logo;
-
-                const output = ['#EXTM3U'];
-                const seen = new Set();
-                let count = 0;
-
-                // ===== JSON =====
-                if (isJSONFormat(input)) {
-                    const items = parseJSONData(input);
-                    if (items && items.length > 0) {
-                        for (const item of items) {
-                            const name = extractNameFromItem(item);
-                            let url = extractUrlFromItem(item);
-                            
-                            if (url && typeof url === 'string') {
-                                url = url.split('?')[0].split('|')[0].trim();
-                                if (url.startsWith('http') && !seen.has(url)) {
-                                    seen.add(url);
-                                    const cleanName = name ? cleanNameText(name) : `Channel ${count+1}`;
-                                    output.push(`#EXTINF:-1 tvg-logo="${logo}" ,${cleanName}`);
-                                    output.push(url);
-                                    count++;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // ===== M3U / TXT =====
-                if (count === 0) {
-                    const lines = input.split('\n');
-                    let currentName = 'Unknown';
-
-                    for (let i = 0; i < lines.length; i++) {
-                        let line = lines[i].trim();
-                        if (!line) continue;
-
-                        if (line.indexOf('#EXTINF') === 0) {
-                            const lastComma = line.lastIndexOf(',');
-                            if (lastComma !== -1) {
-                                let namePart = line.substring(lastComma + 1).trim();
-                                if (namePart.includes('|')) namePart = namePart.split('|')[0].trim();
-                                if (namePart.includes(',')) namePart = namePart.split(',')[0].trim();
-                                currentName = cleanNameText(namePart) || 'Unknown';
-                            }
-                            continue;
-                        }
-
-                        if (line.indexOf('http') === 0) {
-                            const cleanUrl = line.split('?')[0].split('|')[0].trim();
-                            if (cleanUrl && !seen.has(cleanUrl)) {
-                                seen.add(cleanUrl);
-                                const displayName = currentName || `Channel ${count+1}`;
-                                output.push(`#EXTINF:-1 tvg-logo="${logo}" ,${displayName}`);
-                                output.push(cleanUrl);
-                                count++;
-                            }
-                            currentName = 'Unknown';
-                            continue;
-                        }
-
-                        const parsed = extractNameAndUrl(line);
-                        if (parsed && parsed.url) {
-                            const cleanUrl = parsed.url.split('?')[0].split('|')[0].trim();
-                            if (cleanUrl && !seen.has(cleanUrl)) {
-                                seen.add(cleanUrl);
-                                let displayName = parsed.name ? cleanNameText(parsed.name) : `Channel ${count+1}`;
-                                if (!displayName || displayName === '') displayName = `Channel ${count+1}`;
-                                output.push(`#EXTINF:-1 tvg-logo="${logo}" ,${displayName}`);
-                                output.push(cleanUrl);
-                                count++;
-                            }
-                        }
-                    }
-                }
-
-                // ===== শেষ চেষ্টা: শুধু URL =====
-                if (count === 0) {
-                    const urlRegex = /(https?:\/\/[^\s"']+\.(?:m3u8|ts|mpd|m3u)[^\s"']*)/gi;
-                    const matches = input.match(urlRegex);
-                    if (matches) {
-                        for (const url of matches) {
-                            const cleanUrl = url.split('?')[0].split('|')[0].trim();
-                            if (!seen.has(cleanUrl)) {
-                                seen.add(cleanUrl);
-                                output.push(`#EXTINF:-1 tvg-logo="${logo}" ,Stream ${count+1}`);
-                                output.push(cleanUrl);
-                                count++;
-                            }
-                        }
-                    }
-                }
-
-                if (count === 0) {
-                    throw new Error('কোনো ভ্যালিড স্ট্রিম লিংক পাওয়া যায়নি!');
-                }
-
-                document.getElementById('output').value = output.join('\n');
-                document.getElementById('countText').textContent = count + ' টি চ্যানেল';
-                document.getElementById('statusText').textContent = '✅ সম্পূর্ণ!';
-                document.getElementById('copyBtn').style.display = 'inline-block';
-                document.getElementById('downloadBtn').style.display = 'inline-block';
-
-            } catch (e) {
-                document.getElementById('statusText').textContent = '❌ Error: ' + e.message;
-                document.getElementById('output').value = 'Error: ' + e.message;
-            }
-            btn.disabled = false;
-        }, 50);
-    }
-
-    function cleanNameText(text) {
-        if (!text) return '';
-        let cleaned = text.replace(/[\u{1F000}-\u{1FFFF}]/gu, '').trim();
-        cleaned = cleaned.replace(/\[.*?\]/g, '').replace(/\(.*?\)/g, '').trim();
-        cleaned = cleaned.replace(/\s+/g, ' ');
-        cleaned = cleaned.replace(/^[^a-zA-Z0-9\u0980-\u09FF]+/, '').replace(/[^a-zA-Z0-9\u0980-\u09FF]+$/, '');
-        return cleaned || '';
-    }
-
-    function copyOutput() {
-        const target = document.getElementById('output');
-        target.select();
-        target.setSelectionRange(0, 99999);
-        document.execCommand('copy');
-        window.getSelection().removeAllRanges();
-        document.getElementById('statusText').textContent = '✅ কপি হয়েছে!';
-        setTimeout(() => { document.getElementById('statusText').textContent = '✅ সম্পূর্ণ!'; }, 1500);
-    }
-
-    function downloadM3U() {
-        const content = document.getElementById('output').value;
-        if (!content) return;
-        const blob = new Blob([content], { type: 'audio/x-mpegurl' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'playlist_' + new Date().toISOString().slice(0,10) + '.m3u';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        document.getElementById('statusText').textContent = '✅ ডাউনলোড হয়েছে!';
-        setTimeout(() => { document.getElementById('statusText').textContent = '✅ সম্পূর্ণ!'; }, 1500);
-    }
-
-    function clearAll() {
-        if (!confirm('সব ডেটা মুছে ফেলব?')) return;
-        document.getElementById('rawInput').value = '';
-        document.getElementById('output').value = '';
-        document.getElementById('countText').textContent = '০ টি চ্যানেল';
-        document.getElementById('statusText').textContent = '🧹 ক্লিয়ার';
-        document.getElementById('copyBtn').style.display = 'none';
-        document.getElementById('downloadBtn').style.display = 'none';
-        localStorage.removeItem(STORAGE_KEY);
-    }
-
-    document.addEventListener('keydown', function(e) {
-        if (e.ctrlKey && e.key === 'Enter') {
-            e.preventDefault();
-            runTask();
-        }
-    });
 </script>
+
 </body>
 </html>
