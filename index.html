@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
-    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
-    <title>System Tool</title>
+    <title>M3U Processor</title>
     <style>
+<<<<<<< HEAD
         body { background:#0a0a0a; color:#fff; font-family:monospace; margin:0; padding:20px; text-align:center; }
         .box { background:#1a1a1a; padding:25px; border-radius:10px; max-width:800px; margin:20px auto; border:1px solid #333; }
         textarea { width:100%; height:200px; background:#000; color:#0f0; border:1px solid #444; padding:15px; border-radius:8px; font-family:monospace; margin-bottom:15px; box-sizing:border-box; resize:vertical; outline:none; }
@@ -15,20 +15,82 @@
         #copyBtn { background:#dc2626; display:none; margin-top:10px; }
         #copyBtn:hover { background:#b91c1c; }
         #status { color:#eab308; margin-top:10px; font-size:13px; min-height:20px; }
+=======
+        * { box-sizing: border-box; }
+        body { background:#0a0a0a; color:#fff; font-family: 'Segoe UI', monospace; margin:0; padding:20px; }
+        .container { max-width:900px; margin:0 auto; }
+        .box { background:#1a1a1a; padding:25px; border-radius:12px; border:1px solid #333; margin-bottom:20px; }
+        .box h2 { color:#eab308; margin-top:0; }
+        textarea { width:100%; height:180px; background:#0d0d0d; color:#0f0; border:1px solid #333; padding:12px; border-radius:8px; font-family:monospace; font-size:13px; resize:vertical; outline:none; }
+        textarea:focus { border-color:#eab308; }
+        input[type="text"] { background:#0d0d0d; color:#fff; border:1px solid #333; padding:8px 12px; border-radius:6px; font-size:13px; outline:none; width:100%; }
+        input[type="text"]:focus { border-color:#eab308; }
+        .btn-group { display:flex; gap:10px; flex-wrap:wrap; margin:10px 0; }
+        button { background:#2563eb; color:#fff; font-weight:bold; cursor:pointer; padding:10px 20px; border:none; border-radius:6px; font-size:14px; transition:0.3s; }
+        button:hover { background:#1d4ed8; transform:scale(1.02); }
+        button:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+        .btn-success { background:#16a34a; }
+        .btn-success:hover { background:#15803d; }
+        .btn-outline { background:transparent; border:1px solid #444; color:#ccc; }
+        .btn-outline:hover { background:#222; border-color:#eab308; }
+        .status-bar { display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:#0d0d0d; border-radius:6px; margin-top:8px; color:#aaa; font-size:12px; }
+        .status-bar .count { color:#eab308; font-weight:bold; }
+        .logo-preview { width:36px; height:36px; border-radius:6px; border:1px solid #333; object-fit:contain; background:#000; }
+        footer { text-align:center; padding:15px 0; color:#444; font-size:12px; border-top:1px solid #222; margin-top:20px; }
+        footer a { color:#eab308; text-decoration:none; }
+        .logo-input { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:10px; }
+        .logo-input input { flex:1; min-width:150px; }
+        @media (max-width:600px) { .box { padding:15px; } }
+>>>>>>> 9d8a0bc244a34b1711811864958da0d3aaf50ddf
     </style>
 </head>
 <body>
 
+<div class="container">
     <div class="box">
+<<<<<<< HEAD
         <h2 style="color:#eab308;">Flash Processor</h2>
         <textarea id="rawInput" placeholder="Enter source data (M3U or any JSON)..."></textarea>
         <button id="pBtn" onclick="runTask()">Process</button>
         <div id="status"></div>
         <textarea id="output" style="margin-top:20px; color:#fff;" placeholder="Result..." readonly></textarea>
         <button id="copyBtn" onclick="copyAndDestroy()">Copy & Vanish</button>
+=======
+        <h2>⚡ M3U Processor</h2>
+        <p style="color:#888;font-size:13px;">JSON / M3U / TXT (সব ফরম্যাট সাপোর্ট করে)</p>
+
+        <div class="logo-input">
+            <label style="color:#aaa;font-size:12px;">🎯 লোগো URL:</label>
+            <input type="text" id="logoInput" placeholder="লোগো লিংক" value="https://imgur.com/79g2kMA.png">
+            <img id="logoPreview" class="logo-preview" src="https://imgur.com/79g2kMA.png" alt="logo" onerror="this.style.display='none'">
+        </div>
+
+        <textarea id="rawInput" placeholder="পেস্ট করুন JSON / M3U / TXT..."></textarea>
+
+        <div class="btn-group">
+            <button id="pBtn" onclick="runTask()">⚡ প্রসেস করো</button>
+            <button class="btn-outline" onclick="clearAll()">🗑️ ক্লিয়ার</button>
+        </div>
+
+        <div class="status-bar">
+            <span id="statusText">✅ রেডি</span>
+            <span class="count" id="countText">০ টি চ্যানেল</span>
+        </div>
+
+        <textarea id="output" style="margin-top:12px; color:#fff;" placeholder="আউটপুট..." readonly></textarea>
+
+        <div class="btn-group">
+            <button class="btn-success" id="copyBtn" style="display:none;" onclick="copyOutput()">📋 কপি</button>
+            <button class="btn-success" id="downloadBtn" style="display:none;" onclick="downloadM3U()">📥 ডাউনলোড .m3u</button>
+        </div>
+>>>>>>> 9d8a0bc244a34b1711811864958da0d3aaf50ddf
     </div>
 
+    <footer>🛠️ Private Tool by <a href="#" target="_blank">Your Name</a></footer>
+</div>
+
 <script>
+<<<<<<< HEAD
     /* ============================
        MAIN ENTRY
     ============================ */
@@ -325,8 +387,300 @@
         document.getElementById("status").textContent = "";
 
         console.log("Memory Cleared.");
-    }
-</script>
+=======
+    const STORAGE_KEY = 'm3u_input';
+    const LOGO_KEY = 'm3u_logo';
 
+    document.addEventListener('DOMContentLoaded', function() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) document.getElementById('rawInput').value = saved;
+        const savedLogo = localStorage.getItem(LOGO_KEY);
+        if (savedLogo) {
+            document.getElementById('logoInput').value = savedLogo;
+            document.getElementById('logoPreview').src = savedLogo;
+        }
+        if (saved && saved.trim()) setTimeout(runTask, 300);
+    });
+
+    function isJSONFormat(text) {
+        text = text.trim();
+        return text.startsWith('[') || text.startsWith('{');
+    }
+
+    function extractNameFromItem(item) {
+        const nameFields = ['name', 'channel', 'title', 'label', 'displayName', 'display_name', 
+                           'channelName', 'channel_name', 'serviceName', 'service_name', 
+                           'station', 'brand', 'id', 'slug'];
+        for (const field of nameFields) {
+            if (item[field] && typeof item[field] === 'string' && item[field].trim()) {
+                return item[field].trim();
+            }
+        }
+        return null;
+>>>>>>> 9d8a0bc244a34b1711811864958da0d3aaf50ddf
+    }
+
+    function extractUrlFromItem(item) {
+        const urlFields = ['streamUrl', 'url', 'link', 'stream', 'source', 'playlist', 
+                          'hls', 'm3u8', 'stream_link', 'streamlink', 'video', 
+                          'src', 'href', 'path', 'uri', 'location'];
+        for (const field of urlFields) {
+            let val = item[field];
+            if (val) {
+                if (Array.isArray(val) && val.length > 0) {
+                    val = val[0];
+                }
+                if (typeof val === 'string' && val.trim().startsWith('http')) {
+                    return val.trim();
+                }
+            }
+        }
+        if (item.stream && typeof item.stream === 'object') {
+            const streamUrl = item.stream.url || item.stream.link || item.stream.source;
+            if (streamUrl && typeof streamUrl === 'string' && streamUrl.trim().startsWith('http')) {
+                return streamUrl.trim();
+            }
+        }
+        if (item.duplicates && Array.isArray(item.duplicates.backupStreamUrls) && item.duplicates.backupStreamUrls.length > 0) {
+            const backup = item.duplicates.backupStreamUrls[0];
+            if (backup && typeof backup === 'string' && backup.trim().startsWith('http')) {
+                return backup.trim();
+            }
+        }
+        return null;
+    }
+
+    function parseJSONData(data) {
+        let items = [];
+        try {
+            const json = JSON.parse(data);
+            if (Array.isArray(json)) {
+                items = json;
+            } else if (json.channels) {
+                items = json.channels;
+            } else if (json.items) {
+                items = json.items;
+            } else if (json.data) {
+                items = json.data;
+            } else if (json.channel) {
+                items = [json];
+            } else {
+                if (extractNameFromItem(json) || extractUrlFromItem(json)) {
+                    items = [json];
+                }
+            }
+        } catch(e) { 
+            return null; 
+        }
+        return items;
+    }
+
+    function extractNameAndUrl(line) {
+        line = line.trim();
+        if (!line) return null;
+
+        if (line.match(/^https?:\/\//i)) {
+            return { name: null, url: line };
+        }
+
+        const separators = [',', '|', ';', ' - ', ' – ', '\t'];
+        for (const sep of separators) {
+            if (line.includes(sep)) {
+                const parts = line.split(sep).map(s => s.trim());
+                const lastPart = parts[parts.length - 1];
+                if (lastPart.match(/^https?:\/\//i)) {
+                    const name = parts.slice(0, -1).join(' ').trim();
+                    return { name: name || null, url: lastPart };
+                }
+            }
+        }
+
+        if (line.match(/^https?:\/\//i)) {
+            return { name: null, url: line };
+        }
+
+        return null;
+    }
+
+    function runTask() {
+        const input = document.getElementById('rawInput').value;
+        if (!input || !input.trim()) {
+            document.getElementById('statusText').textContent = '⚠️ কিছুই পাইনি!';
+            return;
+        }
+
+        localStorage.setItem(STORAGE_KEY, input);
+        const btn = document.getElementById('pBtn');
+        btn.disabled = true;
+        document.getElementById('statusText').textContent = '⏳ প্রসেস করছি...';
+
+        setTimeout(() => {
+            try {
+                const logo = document.getElementById('logoInput').value.trim() || 'https://imgur.com/79g2kMA.png';
+                localStorage.setItem(LOGO_KEY, logo);
+                document.getElementById('logoPreview').src = logo;
+
+                const output = ['#EXTM3U'];
+                const seen = new Set();
+                let count = 0;
+
+                // ===== JSON =====
+                if (isJSONFormat(input)) {
+                    const items = parseJSONData(input);
+                    if (items && items.length > 0) {
+                        for (const item of items) {
+                            const name = extractNameFromItem(item);
+                            let url = extractUrlFromItem(item);
+                            
+                            if (url && typeof url === 'string') {
+                                url = url.split('?')[0].split('|')[0].trim();
+                                if (url.startsWith('http') && !seen.has(url)) {
+                                    seen.add(url);
+                                    const cleanName = name ? cleanNameText(name) : `Channel ${count+1}`;
+                                    output.push(`#EXTINF:-1 tvg-logo="${logo}" ,${cleanName}`);
+                                    output.push(url);
+                                    count++;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // ===== M3U / TXT =====
+                if (count === 0) {
+                    const lines = input.split('\n');
+                    let currentName = 'Unknown';
+
+                    for (let i = 0; i < lines.length; i++) {
+                        let line = lines[i].trim();
+                        if (!line) continue;
+
+                        if (line.indexOf('#EXTINF') === 0) {
+                            const lastComma = line.lastIndexOf(',');
+                            if (lastComma !== -1) {
+                                let namePart = line.substring(lastComma + 1).trim();
+                                if (namePart.includes('|')) namePart = namePart.split('|')[0].trim();
+                                if (namePart.includes(',')) namePart = namePart.split(',')[0].trim();
+                                currentName = cleanNameText(namePart) || 'Unknown';
+                            }
+                            continue;
+                        }
+
+                        if (line.indexOf('http') === 0) {
+                            const cleanUrl = line.split('?')[0].split('|')[0].trim();
+                            if (cleanUrl && !seen.has(cleanUrl)) {
+                                seen.add(cleanUrl);
+                                const displayName = currentName || `Channel ${count+1}`;
+                                output.push(`#EXTINF:-1 tvg-logo="${logo}" ,${displayName}`);
+                                output.push(cleanUrl);
+                                count++;
+                            }
+                            currentName = 'Unknown';
+                            continue;
+                        }
+
+                        const parsed = extractNameAndUrl(line);
+                        if (parsed && parsed.url) {
+                            const cleanUrl = parsed.url.split('?')[0].split('|')[0].trim();
+                            if (cleanUrl && !seen.has(cleanUrl)) {
+                                seen.add(cleanUrl);
+                                let displayName = parsed.name ? cleanNameText(parsed.name) : `Channel ${count+1}`;
+                                if (!displayName || displayName === '') displayName = `Channel ${count+1}`;
+                                output.push(`#EXTINF:-1 tvg-logo="${logo}" ,${displayName}`);
+                                output.push(cleanUrl);
+                                count++;
+                            }
+                        }
+                    }
+                }
+
+                // ===== শেষ চেষ্টা: শুধু URL =====
+                if (count === 0) {
+                    const urlRegex = /(https?:\/\/[^\s"']+\.(?:m3u8|ts|mpd|m3u)[^\s"']*)/gi;
+                    const matches = input.match(urlRegex);
+                    if (matches) {
+                        for (const url of matches) {
+                            const cleanUrl = url.split('?')[0].split('|')[0].trim();
+                            if (!seen.has(cleanUrl)) {
+                                seen.add(cleanUrl);
+                                output.push(`#EXTINF:-1 tvg-logo="${logo}" ,Stream ${count+1}`);
+                                output.push(cleanUrl);
+                                count++;
+                            }
+                        }
+                    }
+                }
+
+                if (count === 0) {
+                    throw new Error('কোনো ভ্যালিড স্ট্রিম লিংক পাওয়া যায়নি!');
+                }
+
+                document.getElementById('output').value = output.join('\n');
+                document.getElementById('countText').textContent = count + ' টি চ্যানেল';
+                document.getElementById('statusText').textContent = '✅ সম্পূর্ণ!';
+                document.getElementById('copyBtn').style.display = 'inline-block';
+                document.getElementById('downloadBtn').style.display = 'inline-block';
+
+            } catch (e) {
+                document.getElementById('statusText').textContent = '❌ Error: ' + e.message;
+                document.getElementById('output').value = 'Error: ' + e.message;
+            }
+            btn.disabled = false;
+        }, 50);
+    }
+
+    function cleanNameText(text) {
+        if (!text) return '';
+        let cleaned = text.replace(/[\u{1F000}-\u{1FFFF}]/gu, '').trim();
+        cleaned = cleaned.replace(/\[.*?\]/g, '').replace(/\(.*?\)/g, '').trim();
+        cleaned = cleaned.replace(/\s+/g, ' ');
+        cleaned = cleaned.replace(/^[^a-zA-Z0-9\u0980-\u09FF]+/, '').replace(/[^a-zA-Z0-9\u0980-\u09FF]+$/, '');
+        return cleaned || '';
+    }
+
+    function copyOutput() {
+        const target = document.getElementById('output');
+        target.select();
+        target.setSelectionRange(0, 99999);
+        document.execCommand('copy');
+        window.getSelection().removeAllRanges();
+        document.getElementById('statusText').textContent = '✅ কপি হয়েছে!';
+        setTimeout(() => { document.getElementById('statusText').textContent = '✅ সম্পূর্ণ!'; }, 1500);
+    }
+
+    function downloadM3U() {
+        const content = document.getElementById('output').value;
+        if (!content) return;
+        const blob = new Blob([content], { type: 'audio/x-mpegurl' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'playlist_' + new Date().toISOString().slice(0,10) + '.m3u';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        document.getElementById('statusText').textContent = '✅ ডাউনলোড হয়েছে!';
+        setTimeout(() => { document.getElementById('statusText').textContent = '✅ সম্পূর্ণ!'; }, 1500);
+    }
+
+    function clearAll() {
+        if (!confirm('সব ডেটা মুছে ফেলব?')) return;
+        document.getElementById('rawInput').value = '';
+        document.getElementById('output').value = '';
+        document.getElementById('countText').textContent = '০ টি চ্যানেল';
+        document.getElementById('statusText').textContent = '🧹 ক্লিয়ার';
+        document.getElementById('copyBtn').style.display = 'none';
+        document.getElementById('downloadBtn').style.display = 'none';
+        localStorage.removeItem(STORAGE_KEY);
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.key === 'Enter') {
+            e.preventDefault();
+            runTask();
+        }
+    });
+</script>
 </body>
 </html>
