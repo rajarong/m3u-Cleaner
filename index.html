@@ -79,7 +79,6 @@
 
         for (var i = 0; i < channels.length; i++) {
             out.push('#EXTINF:-1 tvg-logo="https://imgur.com/79g2kMA.png" group-title="skym3u.dev" ,skym3u.dev | ' + channels[i].name);
-            out.push('#EXTVLCOPT:http-referrer=https://skym3u.dev/');
             out.push(channels[i].url);
         }
 
