@@ -180,7 +180,7 @@
         var bu=urls[0],bs=-99999;
         for(var u=0;u<urls.length;u++){var s=kScore(urls[u].k,URL_PAT);if(s>bs){bs=s;bu=urls[u];}}
         var bn=null,bns=-99999;
-        for(var n=0;n<names.length;n++){var ns=kScore(names[n].n,NAME_PAT);if(ns>bns){bns=ns;bn=names[n].v;}}
+        for(var n=0;n<names.length;n++){var ns=kScore(names[n].k,NAME_PAT);if(ns>bns){bns=ns;bn=names[n].v;}}
         return {name:(bn||pk||"Unknown").trim(), url:bu.v.trim()};
     }
 
