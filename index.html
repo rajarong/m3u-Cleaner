@@ -55,7 +55,7 @@
         if (!url || typeof url !== "string") return false;
         url = url.trim();
         if (!HTTP_RX.test(url)) return false;
-        if (url.length > 200) return false; // খুব বড় লিংক হলে ফলস রিটার্ন করবে
+        if (url.length > 70) return false; // খুব বড় লিংক হলে ফলস রিটার্ন করবে
         if (/[<>{}\\]/.test(url)) return false; // হিজিবিজি ব্র্যাকেট বা ক্যারেক্টার থাকলে ফলস
         return true;
     }
