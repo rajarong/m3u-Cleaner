@@ -36,15 +36,30 @@
         // পাসওয়ার্ড সিকিউরিটি চেক
         (function checkAccess() {
             var password = prompt("Enter Password to Access:");
-            if (password === "iptv206") {
+            if (password === "iptv2026") {
                 window.addEventListener("DOMContentLoaded", function() {
                     document.body.style.display = "block";
+                    loadBlockedLogos(); // পেজ লোড হওয়ার পর সেভ করা ব্লকলিস্ট ফিরিয়ে আনা
                 });
             } else {
                 alert("Incorrect Password!");
-                window.location.reload(); // ভুল পাসওয়ার্ড দিলে আবার ট্রাই করতে বলবে
+                window.location.reload(); // ভুল পাসওয়ার্ড দিলে আবার রিফ্রেশ হবে
             }
         })();
+
+        // সেভ করা ব্লকলিস্ট লোড করা
+        function loadBlockedLogos() {
+            var savedLogos = localStorage.getItem("saved_blocked_logos");
+            if (savedLogos) {
+                document.getElementById("blockedLogos").value = savedLogos;
+            }
+        }
+
+        // নতুন কিছু লিখলে তা লোকাল স্টোরেজে স্বয়ংক্রিয়ভাবে সেভ হবে
+        function saveBlockedLogos() {
+            var content = document.getElementById("blockedLogos").value;
+            localStorage.setItem("saved_blocked_logos", content);
+        }
     </script>
 </head>
 <body>
@@ -54,9 +69,9 @@
         
         <textarea id="rawInput" placeholder="Enter source data..."></textarea>
         
-        <!-- লোগো ব্লকলিস্ট ফিল্ড -->
+        <!-- লোগো ব্লকলিস্ট ফিল্ড (oninput দিয়ে অটো সেভ হচ্ছে) -->
         <label class="block-label">Logo Blocklist (One URL per line):</label>
-        <textarea id="blockedLogos" style="height:80px; color:#ff9800;" placeholder="Paste unwanted logo URLs to replace with default..."></textarea>
+        <textarea id="blockedLogos" oninput="saveBlockedLogos()" style="height:80px; color:#ff9800;" placeholder="Paste unwanted logo URLs to replace with default..."></textarea>
 
         <button id="pBtn" onclick="runTask()">Process</button>
         
@@ -72,7 +87,7 @@
         if (!url || typeof url !== "string") return false;
         url = url.trim();
         if (!HTTP_RX.test(url)) return false;
-        if (url.length > 70) return false;
+        if (url.length > 100) return false; // ১০০ অক্ষরের বেশি হলে ডিফল্ট লোগো বসবে
         if (/[<>{}\\]/.test(url)) return false;
         return true;
     }
