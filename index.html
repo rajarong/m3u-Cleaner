@@ -28,23 +28,109 @@
     <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
     
     <style>
-        body { background:#0a0a0a; color:#fff; font-family:monospace; margin:0; padding:20px; text-align:center; }
-        .box { background:#1a1a1a; padding:25px; border-radius:10px; max-width:800px; margin:20px auto; border:1px solid #333; }
-        textarea { width:100%; height:200px; background:#000; color:#0f0; border:1px solid #444; padding:15px; border-radius:8px; font-family:monospace; margin-bottom:15px; box-sizing:border-box; resize:vertical; outline:none; }
-        button { background:#2563eb; color:#fff; font-weight:bold; cursor:pointer; padding:12px 25px; border:none; border-radius:6px; font-size:16px; transition:0.3s; }
-        button:hover { background:#1d4ed8; }
-        #copyBtn { background:#dc2626; display:none; margin-top:10px; }
-        #copyBtn:hover { background:#b91c1c; }
+        * { box-sizing: border-box; }
+        html, body {
+            height: 100vh;
+            overflow: hidden; /* মূল পেজে কোনো স্ক্রলবার আসবে না */
+            margin: 0;
+            padding: 0;
+            background: #0a0a0a;
+            color: #fff;
+            font-family: monospace;
+        }
+        .dashboard-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            padding: 15px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            padding-bottom: 10px;
+        }
+        .box {
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            gap: 10px;
+            overflow: hidden;
+        }
+        .inputs-flex {
+            display: flex;
+            gap: 10px;
+            flex: 1;
+            min-height: 0;
+        }
+        textarea {
+            width: 100%;
+            height: 100%;
+            background: #000;
+            color: #0f0;
+            border: 1px solid #444;
+            padding: 12px;
+            border-radius: 8px;
+            font-family: monospace;
+            resize: none;
+            outline: none;
+            font-size: 13px;
+        }
+        .blocked-box {
+            width: 30%;
+            display: flex;
+            flex-direction: column;
+        }
+        .blocked-box label {
+            font-size: 11px;
+            color: #eab308;
+            margin-bottom: 4px;
+            text-align: left;
+        }
+        button {
+            background: #2563eb;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            transition: 0.3s;
+            width: 100%;
+        }
+        button:hover { background: #1d4ed8; }
+        #copyBtn { background: #dc2626; display: none; margin-top: 5px; }
+        #copyBtn:hover { background: #b91c1c; }
     </style>
 </head>
 <body>
 
-    <div class="box">
-        <h2 style="color:#eab308;">Flash Processor</h2>
-        <textarea id="rawInput" placeholder="Enter source data..."></textarea>
-        <button id="pBtn" onclick="runTask()">Process</button>
-        <textarea id="output" style="margin-top:20px; color:#fff;" placeholder="Result..." readonly></textarea>
-        <button id="copyBtn" onclick="copyAndDestroy()">Copy & Vanish</button>
+    <div class="dashboard-container">
+        <div class="header">
+            <h2 style="color:#eab308; margin:0;">Flash Processor</h2>
+        </div>
+
+        <div class="box">
+            <div class="inputs-flex">
+                <textarea id="rawInput" placeholder="Enter source data..."></textarea>
+                
+                <!-- যুক্ত করা নতুন লোগো ব্লকলিস্ট ফিল্ড -->
+                <div class="blocked-box">
+                    <label>Logo Blocklist (One URL per line):</label>
+                    <textarea id="blockedLogos" placeholder="Paste unwanted logo URLs to replace with default..."></textarea>
+                </div>
+            </div>
+
+            <button id="pBtn" onclick="runTask()">Process</button>
+            
+            <textarea id="output" style="color:#fff;" placeholder="Result..." readonly></textarea>
+            <button id="copyBtn" onclick="copyAndDestroy()">Copy & Vanish</button>
+        </div>
     </div>
 
 <script>
@@ -58,6 +144,14 @@
         if (url.length > 70) return false; // খুব বড় লিংক হলে ফলস রিটার্ন করবে
         if (/[<>{}\\]/.test(url)) return false; // হিজিবিজি ব্র্যাকেট বা ক্যারেক্টার থাকলে ফলস
         return true;
+    }
+
+    // নতুন যুক্ত হওয়া লোগো ব্লকলিস্ট ফিল্টার ফাংশন
+    function isBlockedLogo(url) {
+        var blockedText = document.getElementById("blockedLogos").value.trim();
+        if (!blockedText) return false;
+        var list = blockedText.split("\n").map(function(item) { return item.trim(); });
+        return list.indexOf(url.trim()) !== -1;
     }
 
     function runTask() { 
@@ -92,15 +186,18 @@
         for (var i = 0; i < channels.length; i++) {
             var logoUrl = channels[i].logo;
 
-            // লোগো ভ্যালিড না হলে ডিফল্ট লোগো বসবে
-            if (!isValidLogoUrl(logoUrl)) {
+            // লোগো ভ্যালিড না হলে বা ব্লকলিস্টে থাকলে ডিফল্ট লোগো বসবে
+            if (!isValidLogoUrl(logoUrl) || isBlockedLogo(logoUrl)) {
                 logoUrl = DEFAULT_LOGO;
             }
 
             var chName = channels[i].name || "Unknown";
 
-            // সঠিক tvg-name এবং কমার পর চ্যানেলের নাম ঠিকভাবে সাজানো হয়েছে
-            out.push('#EXTINF:-1 tvg-name="' + chName + '" tvg-logo="' + logoUrl + '?ref=skym3u.dev" provider="skym3u.dev",' + chName);
+            // চ্যানেলের নামকে বোল্ড করার জন্য <b> ট্যাগ সাপোর্টসহ সাজানো হয়েছে
+            var boldName = "<b>" + chName + "</b>";
+
+            // সঠিক tvg-name এবং কমার পর চ্যানেলের বোল্ড নাম ঠিকভাবে সাজানো হয়েছে
+            out.push('#EXTINF:-1 tvg-name="' + chName + '" tvg-logo="' + logoUrl + '?ref=skym3u.dev" provider="skym3u.dev",' + boldName);
             out.push(channels[i].url + '#skym3u.dev');
         }
 
