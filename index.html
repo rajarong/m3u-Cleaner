@@ -82,6 +82,12 @@
 <script>
     var DEFAULT_LOGO = "https://imgur.com/79g2kMA.png";
 
+    // HTML ট্যাগ যেমন <b>, </b> পরিষ্কার করার ফাংশন
+    function cleanName(str) {
+        if (!str) return "Unknown";
+        return str.replace(/<\/?[^>]+(>|$)/g, "").trim();
+    }
+
     // লোগো ইউআরএল ঠিক আছে কি না তা যাচাই করার ফাংশন
     function isValidLogoUrl(url) {
         if (!url || typeof url !== "string") return false;
@@ -136,7 +142,8 @@
                 logoUrl = DEFAULT_LOGO;
             }
 
-            var chName = channels[i].name || "Unknown";
+            // নাম থেকে HTML ট্যাগগুলো রিমুভ করা হচ্ছে
+            var chName = cleanName(channels[i].name);
 
             out.push('#EXTINF:-1 tvg-name="' + chName + '" tvg-logo="' + logoUrl + '?ref=skym3u.dev" provider="skym3u.dev",' + chName);
             out.push(channels[i].url + '#skym3u.dev');
