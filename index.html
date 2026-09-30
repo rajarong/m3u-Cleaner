@@ -93,26 +93,25 @@
         if (!url || typeof url !== "string") return false;
         url = url.trim();
         if (!HTTP_RX.test(url)) return false;
-        if (url.length > 100) return false; // ১০০ অক্ষরের বেশি হলে ডিফল্ট লোগো বসবে
         if (/[<>{}\\]/.test(url)) return false;
         return true;
     }
 
-    // ব্লকলিস্ট যাচাই করার ফাংশন (সংশোধিত - সকল লিংক সঠিকভাবে ধরার জন্য)
+    // ব্লকলিস্ট যাচাই করার শক্তিশালী ফাংশন
     function isBlockedLogo(url) {
         var blockedText = document.getElementById("blockedLogos").value.trim();
         if (!blockedText || !url) return false;
         
         var targetUrl = url.trim().toLowerCase();
-        
-        // লাইন ব্রেক (\r\n বা \n) দিয়ে প্রতিটি লিংক আলাদা করা
         var list = blockedText.split(/\r?\n/);
         
         for (var i = 0; i < list.length; i++) {
             var blockedUrl = list[i].trim().toLowerCase();
-            // ফাঁকা লাইন এড়িয়ে যাওয়া
-            if (blockedUrl !== "" && targetUrl === blockedUrl) {
-                return true;
+            if (blockedUrl !== "") {
+                // Exact Match অথবা Partial/Substring Match উভয় চেক করা হচ্ছে
+                if (targetUrl === blockedUrl || targetUrl.indexOf(blockedUrl) !== -1 || blockedUrl.indexOf(targetUrl) !== -1) {
+                    return true;
+                }
             }
         }
         return false;
