@@ -13,7 +13,7 @@
     <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
     
     <style>
-        /* পাসওয়ার্ড না দেওয়া পর্যন্ত পুরো বডি লুকানো থাকবে */
+        /* পাসওয়ার্ড না দেওয়া পর্যন্ত পুরো বডি লুকানো থাকবে */
         body { 
             display: none; 
             background:#0a0a0a; 
@@ -33,17 +33,17 @@
     </style>
 
     <script>
-        // পাসওয়ার্ড সিকিউরিটি চেক
+        // পাসওয়ার্ড সিকিউরিটি চেক
         (function checkAccess() {
             var password = prompt("Enter Password to Access:");
             if (password === "iptv2026") {
                 window.addEventListener("DOMContentLoaded", function() {
                     document.body.style.display = "block";
-                    loadBlockedLogos(); // পেজ লোড হওয়ার পর সেভ করা ব্লকলিস্ট ফিরিয়ে আনা
+                    loadBlockedLogos(); // পেজ লোড হওয়ার পর সেভ করা ব্লকলিস্ট ফিরিয়ে আনা
                 });
             } else {
                 alert("Incorrect Password!");
-                window.location.reload(); // ভুল পাসওয়ার্ড দিলে আবার রিফ্রেশ হবে
+                window.location.reload(); // ভুল পাসওয়ার্ড দিলে আবার রিফ্রেশ হবে
             }
         })();
 
@@ -55,7 +55,7 @@
             }
         }
 
-        // নতুন কিছু লিখলে তা লোকাল স্টোরেজে স্বয়ংক্রিয়ভাবে সেভ হবে
+        // নতুন কিছু লিখলে তা লোকাল স্টোরেজে স্বয়ংক্রিয়ভাবে সেভ হবে
         function saveBlockedLogos() {
             var content = document.getElementById("blockedLogos").value;
             localStorage.setItem("saved_blocked_logos", content);
@@ -69,7 +69,7 @@
         
         <textarea id="rawInput" placeholder="Enter source data..."></textarea>
         
-        <!-- লোগো ব্লকলিস্ট ফিল্ড (oninput দিয়ে অটো সেভ হচ্ছে) -->
+        <!-- লোগো ব্লকলিস্ট ফিল্ড (oninput দিয়ে অটো সেভ হচ্ছে) -->
         <label class="block-label">Logo Blocklist (One URL per line):</label>
         <textarea id="blockedLogos" oninput="saveBlockedLogos()" style="height:80px; color:#ff9800;" placeholder="Paste unwanted logo URLs to replace with default..."></textarea>
 
@@ -98,12 +98,24 @@
         return true;
     }
 
-    // ব্লকলিস্ট যাচাই করার ফাংশন
+    // ব্লকলিস্ট যাচাই করার ফাংশন (সংশোধিত - সকল লিংক সঠিকভাবে ধরার জন্য)
     function isBlockedLogo(url) {
         var blockedText = document.getElementById("blockedLogos").value.trim();
-        if (!blockedText) return false;
-        var list = blockedText.split("\n").map(function(item) { return item.trim(); });
-        return list.indexOf(url.trim()) !== -1;
+        if (!blockedText || !url) return false;
+        
+        var targetUrl = url.trim().toLowerCase();
+        
+        // লাইন ব্রেক (\r\n বা \n) দিয়ে প্রতিটি লিংক আলাদা করা
+        var list = blockedText.split(/\r?\n/);
+        
+        for (var i = 0; i < list.length; i++) {
+            var blockedUrl = list[i].trim().toLowerCase();
+            // ফাঁকা লাইন এড়িয়ে যাওয়া
+            if (blockedUrl !== "" && targetUrl === blockedUrl) {
+                return true;
+            }
+        }
+        return false;
     }
 
     function runTask() { 
