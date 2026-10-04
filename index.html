@@ -197,9 +197,9 @@
             var lines = text.split("\n"), arr = [];
             for (var j = 0; j < lines.length; j++) {
                 var ln = lines[j].trim();
-                if (ln && ln.charAt(0) === "{") {
+                if (ln && (ln.charAt(0) === "{" || ln.charAt(0) === "[")) {
                     try {
-                        var obj = JSON.parse(ln);
+                        var obj = JSON.parse(ln.replace(/,$/, ""));
                         if (obj && typeof obj === "object") arr.push(obj);
                     } catch(ex2) {}
                 }
@@ -293,7 +293,7 @@
     }
 
     /* ═══════════════════════════════════════════════
-       STRATEGY 2: JS/TS Object Regex Extraction
+       STRATEGY 2: JS/TS Object Regex Extraction (Fixed End-Cut Issue)
     ═══════════════════════════════════════════════ */
     function tryJSObjects(text) {
         var results = [];
@@ -301,28 +301,33 @@
             .replace(/\/\*[\s\S]*?\*\//g, "")
             .replace(/\/\/.*$/gm, "");
 
-        var blocks = [];
-        var depth = 0, start = -1;
-        for (var i = 0; i < clean.length; i++) {
-            if (clean[i] === "{") {
-                if (depth === 0) start = i;
-                depth++;
-            } else if (clean[i] === "}") {
-                depth--;
-                if (depth === 0 && start >= 0) {
-                    blocks.push(clean.substring(start, i + 1));
-                    start = -1;
+        // সরাসরি প্রতিটি অবজেক্টকে নিখুঁতভাবে চিহ্নিত করার উন্নত Regex Pattern
+        var objectMatches = clean.match(/\{[^{}]*?(?:https?:\/\/[^{}]*?)\}/g);
+
+        if (!objectMatches) {
+            // যদি নেস্টেড অবজেক্ট থাকে সেটার ব্যাকআপ সমাধান
+            objectMatches = [];
+            var depth = 0, start = -1;
+            for (var i = 0; i < clean.length; i++) {
+                if (clean[i] === "{") {
+                    if (depth === 0) start = i;
+                    depth++;
+                } else if (clean[i] === "}") {
+                    depth--;
+                    if (depth === 0 && start >= 0) {
+                        objectMatches.push(clean.substring(start, i + 1));
+                        start = -1;
+                    }
                 }
-                if (depth < 0) depth = 0;
             }
         }
 
         var nameRx = /["']?(name|title|channel|label|station|display_name|ch_name|channelname|stream[_-]?name|tvg[_-]?name)["']?\s*[:=]\s*["'`]([^"'`]+)["'`]/i;
-        var urlRx  = /["']?(url|link|stream_?url|stream|src|source|uri|stream_?link|video_?url|media|endpoint|address|file|path|hls|m3u8|feed|content|playback)["']?\s*[:=]\s*["'`](https?:\/\/[^"'`\s]+)["'`]/i;
-        var logoRx = /["']?(logo|tvg[_-]?logo|icon|image|thumbnail|poster|img|cover)["']?\s*[:=]\s*["'`](https?:\/\/[^"'`\s]+)["'`]/i;
+        var urlRx  = /["']?(url|link|stream_?url|stream|src|source|uri|stream_?link|video_?url|media|endpoint|address|file|path|hls|m3u8|feed|content|playback)["']?\s*[:=]\s*["'`](https?:\/\/[^"'`\s,;}]+)["'`]/i;
+        var logoRx = /["']?(logo|tvg[_-]?logo|icon|image|thumbnail|poster|img|cover)["']?\s*[:=]\s*["'`](https?:\/\/[^"'`\s,;}]+)["'`]/i;
 
-        for (var j = 0; j < blocks.length; j++) {
-            var block = blocks[j];
+        for (var j = 0; j < objectMatches.length; j++) {
+            var block = objectMatches[j];
             var nm = nameRx.exec(block);
             var ur = urlRx.exec(block);
             var lg = logoRx.exec(block);
