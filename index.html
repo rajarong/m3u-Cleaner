@@ -123,6 +123,15 @@
         return /\.mpd([?#]|$)/i.test(url);
     }
 
+    var NAME_PAT = ["tvg-name","tvg_name","name","title","channel","label","station",
+        "channel-name","channel_name","stream_name","display_name","ch_name","channelname"];
+    var URL_PAT = ["url","link","stream_url","stream","src","source","uri","file",
+        "stream_link","hls","m3u8","path","address","video_url","media","content","endpoint"];
+    var LOGO_PAT = ["logo","tvg-logo","tvg_logo","icon","image","thumbnail","poster",
+        "img","cover","avatar","picture","thumb","banner"];
+    var IMG_RX = /\.(png|jpg|jpeg|gif|svg|webp|ico|bmp)([?#]|$)/i;
+    var HTTP_RX = /^https?:\/\//i;
+
     function runTask() { 
         var input = document.getElementById("rawInput").value; 
         if(!input || !input.trim()) return; 
@@ -132,15 +141,10 @@
 
         var channels = [];
 
-        // Strategy 1: Try pure JSON
-        channels = tryJSON(input.trim());
+        // সরাসরি শক্তিশালী ইউনিভার্সাল পার্সার ব্যবহার করা হচ্ছে (কোনো চ্যানেল বাদ যাবে না)
+        channels = tryUniversalParser(input);
 
-        // Strategy 2: Universal Global Parser (Ensures 100% channel extraction without dropping)
-        if (channels.length === 0) {
-            channels = tryUniversalParser(input);
-        }
-
-        // Strategy 3: Fallback M3U
+        // যদি কোনো কারণে ফাঁকা থাকে তবে ফলব্যাক M3U চেক করা
         if (channels.length === 0) {
             channels = tryM3U(input);
         }
@@ -173,144 +177,20 @@
     } 
 
     /* ═══════════════════════════════════════════════
-       STRATEGY 1: Pure JSON
-    ═══════════════════════════════════════════════ */
-    function tryJSON(text) {
-        var data = null;
-        try {
-            var p = JSON.parse(text);
-            if (p && typeof p === "object") data = p;
-        } catch(e) {}
-
-        if (!data) {
-            var s = -1, b = "";
-            for (var i = 0; i < text.length; i++) {
-                if (text[i] === "[" || text[i] === "{") { s = i; b = text[i]; break; }
-            }
-            if (s >= 0) {
-                var e2 = (b === "[") ? text.lastIndexOf("]") : text.lastIndexOf("}");
-                if (e2 > s) {
-                    try {
-                        var p2 = JSON.parse(text.substring(s, e2 + 1));
-                        if (p2 && typeof p2 === "object") data = p2;
-                    } catch(ex) {}
-                }
-            }
-        }
-
-        if (!data) return [];
-        return walkJSON(data, null);
-    }
-
-    var NAME_PAT = ["tvg-name","tvg_name","name","title","channel","label","station",
-        "channel-name","channel_name","stream_name","display_name","ch_name","channelname"];
-    var URL_PAT = ["url","link","stream_url","stream","src","source","uri","file",
-        "stream_link","hls","m3u8","path","address","video_url","media","content","endpoint"];
-    var LOGO_PAT = ["logo","tvg-logo","tvg_logo","icon","image","thumbnail","poster",
-        "img","cover","avatar","picture","thumb","banner"];
-    var IMG_RX = /\.(png|jpg|jpeg|gif|svg|webp|ico|bmp)([?#]|$)/i;
-    var HTTP_RX = /^https?:\/\//i;
-
-    function isUrl(v) { return typeof v === "string" && HTTP_RX.test(v.trim()); }
-
-    function kScore(key, list) {
-        var lk = (key||"").toLowerCase().replace(/[\s\-_]/g,"");
-        for (var i=0;i<list.length;i++) {
-            var p = list[i].replace(/[\s\-_]/g,"");
-            if (lk===p) return 1000-i;
-            if (lk.indexOf(p)!==-1) return 500-i;
-        }
-        return -1;
-    }
-    function isLogo(k,v) { return kScore(k,LOGO_PAT)>0 || (IMG_RX.test(v) && isUrl(v)); }
-    function isStream(k,v) { return isUrl(v) && !isLogo(k,v) && !isMpdUrl(v); }
-
-    function flatL(obj,pk) {
-        var r=[];
-        if(obj==null) return r;
-        if(typeof obj==="string"){ r.push({k:pk||"",v:obj}); return r; }
-        if(typeof obj==="number"||typeof obj==="boolean") return r;
-        if(Array.isArray(obj)){ for(var i=0;i<obj.length;i++) r=r.concat(flatL(obj[i],pk)); return r; }
-        if(typeof obj==="object"){ var ks=Object.keys(obj); for(var j=0;j<ks.length;j++) r=r.concat(flatL(obj[ks[j]],ks[j])); }
-        return r;
-    }
-
-    function pickOne(obj,pk) {
-        var lv=flatL(obj,""), urls=[], names=[], logos=[];
-        for(var i=0;i<lv.length;i++){
-            if(isLogo(lv[i].k, lv[i].v)) logos.push(lv[i]);
-            else if(isStream(lv[i].k,lv[i].v)) urls.push(lv[i]);
-            else if(typeof lv[i].v==="string"&&!isUrl(lv[i].v)&&lv[i].v.trim()) names.push(lv[i]);
-        }
-        if(urls.length===0) return null;
-        var bu=urls[0],bs=-99999;
-        for(var u=0;u<urls.length;u++){var s=kScore(urls[u].k,URL_PAT);if(s>bs){bs=s;bu=urls[u];}}
-        var bn=null,bns=-99999;
-        for(var n=0;n<names.length;n++){var ns=kScore(names[n].k,NAME_PAT);if(ns>bns){bns=ns;bn=names[n].v;}}
-        
-        var bl=null, bls=-99999;
-        for(var l=0;l<logos.length;l++){var ls=kScore(logos[l].k,LOGO_PAT);if(ls>bls){bls=ls;bl=logos[l].v;}}
-
-        var finalUrl = bu.v.trim();
-        if (isMpdUrl(finalUrl)) return null;
-
-        return {name:(bn||pk||"Unknown").trim(), url:finalUrl, logo: bl ? bl.trim() : null};
-    }
-
-    function walkJSON(d,pk) {
-        var res=[];
-        if(Array.isArray(d)){ for(var i=0;i<d.length;i++) res=res.concat(walkJSON(d[i],pk)); return res; }
-        if(d===null||typeof d!=="object") return res;
-        var ks=Object.keys(d);
-        
-        var uc=0,sc=0;
-        for(var a=0;a<ks.length;a++){if(typeof d[ks[a]]==="string"){sc++;if(isStream(ks[a],d[ks[a]]))uc++;}}
-        if(uc>1&&uc>=sc*0.5&&sc>=ks.length*0.7){
-            for(var b=0;b<ks.length;b++){
-                var strVal = d[ks[b]].trim();
-                if(typeof d[ks[b]]==="string"&&isStream(ks[b],strVal)){
-                    res.push({name:ks[b],url:strVal, logo:null});
-                }
-            }
-            return res;
-        }
-        
-        var hd=false;
-        for(var c=0;c<ks.length;c++){if(typeof d[ks[c]]==="string"&&isStream(ks[c],d[ks[c]])){hd=true;break;}}
-        if(hd){var e=pickOne(d,pk);if(e)res.push(e);return res;}
-        
-        var bf=res.length;
-        for(var f=0;f<ks.length;f++){
-            var v=d[ks[f]];
-            if(v===null||typeof v!=="object") continue;
-            if(Array.isArray(v)){for(var g=0;g<v.length;g++) res=res.concat(walkJSON(v[g],ks[f]));}
-            else{var cl=flatL(v,""),ch=false;for(var h=0;h<cl.length;h++){if(isStream(cl[h].k,cl[h].v)){ch=true;break;}}
-                if(ch){var cu=0;for(var m=0;m<cl.length;m++){if(isStream(cl[m].k,cl[m].v))cu++;}
-                    if(cu<=3){var ce=pickOne(v,ks[f]);if(ce)res.push(ce);}else res=res.concat(walkJSON(v,ks[f]));}}
-        }
-        if(res.length===bf){var fb=pickOne(d,pk);if(fb)res.push(fb);}
-        return res;
-    }
-
-    /* ═══════════════════════════════════════════════
-       STRATEGY 2: Universal Global Parser (No channel drop)
+       UNIVERSAL GLOBAL PARSER (Ensures 100% channel extraction without dropping)
     ═══════════════════════════════════════════════ */
     function tryUniversalParser(text) {
         var results = [];
-        // সব ধরনের কমেন্টস বাদ দেওয়া
         var clean = text.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
 
-        // প্রতিটি লাইন বা সেগমেন্ট আলাদা করে স্ক্যান করা যাতে শত শত বা হাজার চ্যানেল মিস না হয়
         var blocks = clean.split(/[{}[\]]/);
         
         var nameRx = /["']?(name|title|channel|label|station|display_name|ch_name|channelname|stream[_-]?name|tvg[_-]?name)["']?\s*[:=]\s*["'`]([^"'`]+)["'`]/i;
         var urlRx  = /["']?(url|link|stream_?url|stream|src|source|uri|stream_?link|video_?url|media|endpoint|address|file|path|hls|m3u8|feed|content|playback)["']?\s*[:=]\s*["'`](https?:\/\/[^"'`\s,;}]+)["'`]/i;
         var logoRx = /["']?(logo|tvg[_-]?logo|icon|image|thumbnail|poster|img|cover)["']?\s*[:=]\s*["'`](https?:\/\/[^"'`\s,;}]+)["'`]/i;
 
-        // পুরো টেক্সট থেকে সরাসরি সমস্ত স্ট্রিম লিঙ্ক এবং আশেপাশের তথ্য খুঁজে বের করার গ্লোবাল রেগেক্স
         var globalUrlRx = /["']?(https?:\/\/[^"'`\s,;{}]+)["']/g;
 
-        // প্রথমে ব্লকভিত্তিক খোঁজা
         for (var j = 0; j < blocks.length; j++) {
             var block = blocks[j];
             var ur = urlRx.exec(block);
@@ -326,14 +206,12 @@
                 var chName = nm ? nm[2].trim() : "Unknown";
                 var chLogo = lg ? lg[2].trim() : null;
 
-                // ডুপ্লিকেট চেক করে যুক্ত করা
                 if (!results.some(function(item) { return item.url === chUrl; })) {
                     results.push({ name: chName, url: chUrl, logo: chLogo });
                 }
             }
         }
 
-        // যদি কোনো কারণে ব্লক থেকে কম পাওয়া যায়, তবে সরাসরি গ্লোবাল ইউআরএল স্ক্যান করে বাকিগুলো উদ্ধার করা
         var match;
         while ((match = globalUrlRx.exec(clean)) !== null) {
             var directUrl = match[1].trim();
@@ -341,7 +219,6 @@
             if (IMG_RX.test(directUrl)) continue;
             if (!HTTP_RX.test(directUrl)) continue;
 
-            // যদি ইতিমধ্যে রেজাল্টে না থাকে তবে যোগ হবে
             if (!results.some(function(item) { return item.url === directUrl; })) {
                 results.push({ name: "Channel " + (results.length + 1), url: directUrl, logo: null });
             }
