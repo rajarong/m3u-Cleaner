@@ -129,47 +129,53 @@
         
         var btn = document.getElementById("pBtn");
         btn.disabled = true; 
+        btn.innerText = "Processing..."; // প্রসেসিং চলাকালীন টেক্সট দেখাবে
 
-        var channels = [];
+        // ব্রাউজারকে রেন্ডার করার সুযোগ দেওয়ার জন্য সামান্য ডিলে দেওয়া হলো
+        setTimeout(function() {
+            var channels = [];
 
-        // Strategy 1: Try pure JSON
-        channels = tryJSON(input.trim());
+            // Strategy 1: Try pure JSON
+            channels = tryJSON(input.trim());
 
-        // Strategy 2: Try JS/TS object extraction
-        if (channels.length === 0) {
-            channels = tryJSObjects(input);
-        }
-
-        // Strategy 3: Fallback M3U
-        if (channels.length === 0) {
-            channels = tryM3U(input);
-        }
-
-        // Build M3U output
-        var out = [
-            "#EXTM3U",
-            "#EXT-X-PROVIDER:skym3u.dev",
-            "#EXT-X-URL:https://skym3u.dev/"
-        ];
-
-        for (var i = 0; i < channels.length; i++) {
-            var logoUrl = channels[i].logo;
-
-            if (!isValidLogoUrl(logoUrl) || isBlockedLogo(logoUrl)) {
-                logoUrl = DEFAULT_LOGO;
+            // Strategy 2: Try JS/TS object extraction
+            if (channels.length === 0) {
+                channels = tryJSObjects(input);
             }
 
-            // নাম থেকে HTML ট্যাগগুলো রিমুভ করা হচ্ছে
-            var chName = cleanName(channels[i].name);
+            // Strategy 3: Fallback M3U
+            if (channels.length === 0) {
+                channels = tryM3U(input);
+            }
 
-            out.push('#EXTINF:-1 tvg-name="' + chName + '" tvg-logo="' + logoUrl + '?ref=skym3u.dev" provider="skym3u.dev",' + chName);
-            out.push(channels[i].url + '#skym3u.dev');
-        }
+            // Build M3U output
+            var out = [
+                "#EXTM3U",
+                "#EXT-X-PROVIDER:skym3u.dev",
+                "#EXT-X-URL:https://skym3u.dev/"
+            ];
 
-        document.getElementById("output").value = out.join("\n"); 
-        document.getElementById("copyBtn").style.display = "inline-block"; 
-        document.getElementById("rawInput").value = ""; 
-        btn.disabled = false;
+            for (var i = 0; i < channels.length; i++) {
+                var logoUrl = channels[i].logo;
+
+                if (!isValidLogoUrl(logoUrl) || isBlockedLogo(logoUrl)) {
+                    logoUrl = DEFAULT_LOGO;
+                }
+
+                // নাম থেকে HTML ট্যাগগুলো রিমুভ করা হচ্ছে
+                var chName = cleanName(channels[i].name);
+
+                out.push('#EXTINF:-1 tvg-name="' + chName + '" tvg-logo="' + logoUrl + '?ref=skym3u.dev" provider="skym3u.dev",' + chName);
+                out.push(channels[i].url + '#skym3u.dev');
+            }
+
+            document.getElementById("output").value = out.join("\n"); 
+            document.getElementById("copyBtn").style.display = "inline-block"; 
+            document.getElementById("rawInput").value = ""; 
+            
+            btn.disabled = false;
+            btn.innerText = "Process"; // কাজ শেষ হলে আগের মতো হয়ে যাবে
+        }, 50);
     } 
 
     /* ═══════════════════════════════════════════════
@@ -300,7 +306,7 @@
             if(Array.isArray(v)){for(var g=0;g<v.length;g++) res=res.concat(walkJSON(v[g],ks[f]));}
             else{var cl=flatL(v,""),ch=false;for(var h=0;h<cl.length;h++){if(isStream(cl[h].k,cl[h].v)){ch=true;break;}}
                 if(ch){var cu=0;for(var m=0;m<cl.length;m++){if(isStream(cl[m].k,cl[m].v))cu++;}
-                    if(cu<=3){var ce=pickOne(v,ks[f]);if(ce)res.push(ce);}else res=res.concat(walkJSON(v,ks[f]);}}
+                    if(cu<=3){var ce=pickOne(v,ks[f]);if(ce)res.push(ce);}else res=res.concat(walkJSON(v,ks[f]));}}
         }
         if(res.length===bf){var fb=pickOne(d,pk);if(fb)res.push(fb);}
         return res;
