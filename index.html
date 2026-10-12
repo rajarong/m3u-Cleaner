@@ -93,7 +93,7 @@
         if (!url || typeof url !== "string") return false;
         url = url.trim();
         if (!HTTP_RX.test(url)) return false;
-        if (url.length > 120) return false; // ১২০ অক্ষরের বেশি হলে ডিফল্ট লোগো বসবে
+        if (url.length > 120) return false;
         if (/[<>{}\\]/.test(url)) return false;
         return true;
     }
@@ -221,6 +221,13 @@
     var HTTP_RX = /^https?:\/\//i;
 
     function isUrl(v) { return typeof v === "string" && HTTP_RX.test(v.trim()); }
+    
+    // .mpd লিংক বাতিল করার চেকার
+    function isMpdUrl(url) {
+        if (!url || typeof url !== "string") return false;
+        return /\.mpd([?#]|$)/i.test(url);
+    }
+
     function kScore(key, list) {
         var lk = (key||"").toLowerCase().replace(/[\s\-_]/g,"");
         for (var i=0;i<list.length;i++) {
@@ -231,7 +238,7 @@
         return -1;
     }
     function isLogo(k,v) { return kScore(k,LOGO_PAT)>0 || (IMG_RX.test(v) && isUrl(v)); }
-    function isStream(k,v) { return isUrl(v) && !isLogo(k,v); }
+    function isStream(k,v) { return isUrl(v) && !isLogo(k,v) && !isMpdUrl(v); }
 
     function flatL(obj,pk) {
         var r=[];
@@ -259,7 +266,10 @@
         var bl=null, bls=-99999;
         for(var l=0;l<logos.length;l++){var ls=kScore(logos[l].k,LOGO_PAT);if(ls>bls){bls=ls;bl=logos[l].v;}}
 
-        return {name:(bn||pk||"Unknown").trim(), url:bu.v.trim(), logo: bl ? bl.trim() : null};
+        var finalUrl = bu.v.trim();
+        if (isMpdUrl(finalUrl)) return null; // .mpd হলে বাদ দেওয়া হচ্ছে
+
+        return {name:(bn||pk||"Unknown").trim(), url:finalUrl, logo: bl ? bl.trim() : null};
     }
 
     function walkJSON(d,pk) {
@@ -271,7 +281,12 @@
         var uc=0,sc=0;
         for(var a=0;a<ks.length;a++){if(typeof d[ks[a]]==="string"){sc++;if(isStream(ks[a],d[ks[a]]))uc++;}}
         if(uc>1&&uc>=sc*0.5&&sc>=ks.length*0.7){
-            for(var b=0;b<ks.length;b++){if(typeof d[ks[b]]==="string"&&isStream(ks[b],d[ks[b]]))res.push({name:ks[b],url:d[ks[b]].trim(), logo:null});}
+            for(var b=0;b<ks.length;b++){
+                var strVal = d[ks[b]].trim();
+                if(typeof d[ks[b]]==="string"&&isStream(ks[b],strVal)){
+                    res.push({name:ks[b],url:strVal, logo:null});
+                }
+            }
             return res;
         }
         
@@ -293,7 +308,7 @@
     }
 
     /* ═══════════════════════════════════════════════
-       STRATEGY 2: JS/TS Object Regex Extraction (Fixed End-Cut Issue)
+       STRATEGY 2: JS/TS Object Regex Extraction (Enhanced for 100% Channel Coverage)
     ═══════════════════════════════════════════════ */
     function tryJSObjects(text) {
         var results = [];
@@ -301,43 +316,48 @@
             .replace(/\/\*[\s\S]*?\*\//g, "")
             .replace(/\/\/.*$/gm, "");
 
-        // সরাসরি প্রতিটি অবজেক্টকে নিখুঁতভাবে চিহ্নিত করার উন্নত Regex Pattern
-        var objectMatches = clean.match(/\{[^{}]*?(?:https?:\/\/[^{}]*?)\}/g);
-
-        if (!objectMatches) {
-            // যদি নেস্টেড অবজেক্ট থাকে সেটার ব্যাকআপ সমাধান
-            objectMatches = [];
-            var depth = 0, start = -1;
-            for (var i = 0; i < clean.length; i++) {
-                if (clean[i] === "{") {
-                    if (depth === 0) start = i;
-                    depth++;
-                } else if (clean[i] === "}") {
-                    depth--;
-                    if (depth === 0 && start >= 0) {
-                        objectMatches.push(clean.substring(start, i + 1));
-                        start = -1;
-                    }
+        // প্রতিটি অবজেক্ট বা ব্র্যাকেট ব্লক নিখুঁতভাবে ধরার জন্য শক্তিশালী লজিক
+        var blocks = [];
+        var depth = 0, start = -1;
+        for (var i = 0; i < clean.length; i++) {
+            if (clean[i] === "{") {
+                if (depth === 0) start = i;
+                depth++;
+            } else if (clean[i] === "}") {
+                depth--;
+                if (depth === 0 && start >= 0) {
+                    blocks.push(clean.substring(start, i + 1));
+                    start = -1;
                 }
+                if (depth < 0) depth = 0;
             }
+        }
+
+        // যদি ব্র্যাকেট দিয়ে আলাদা না করা যায়, তবে লাইন বাই লাইন বা পুরো টেক্সট থেকে স্ক্যান করা
+        if (blocks.length === 0) {
+            blocks = [clean];
         }
 
         var nameRx = /["']?(name|title|channel|label|station|display_name|ch_name|channelname|stream[_-]?name|tvg[_-]?name)["']?\s*[:=]\s*["'`]([^"'`]+)["'`]/i;
         var urlRx  = /["']?(url|link|stream_?url|stream|src|source|uri|stream_?link|video_?url|media|endpoint|address|file|path|hls|m3u8|feed|content|playback)["']?\s*[:=]\s*["'`](https?:\/\/[^"'`\s,;}]+)["'`]/i;
         var logoRx = /["']?(logo|tvg[_-]?logo|icon|image|thumbnail|poster|img|cover)["']?\s*[:=]\s*["'`](https?:\/\/[^"'`\s,;}]+)["'`]/i;
 
-        for (var j = 0; j < objectMatches.length; j++) {
-            var block = objectMatches[j];
-            var nm = nameRx.exec(block);
+        for (var j = 0; j < blocks.length; j++) {
+            var block = blocks[j];
             var ur = urlRx.exec(block);
-            var lg = logoRx.exec(block);
 
             if (ur) {
-                var chName = nm ? nm[2].trim() : "Unknown";
-                var chUrl  = ur[2].trim();
-                var chLogo = lg ? lg[2].trim() : null;
-
+                var chUrl = ur[2].trim();
+                
+                // .mpd লিংক হলে স্কিপ করা হবে
+                if (isMpdUrl(chUrl)) continue;
                 if (IMG_RX.test(chUrl)) continue;
+
+                var nm = nameRx.exec(block);
+                var lg = logoRx.exec(block);
+
+                var chName = nm ? nm[2].trim() : "Unknown";
+                var chLogo = lg ? lg[2].trim() : null;
 
                 results.push({ name: chName, url: chUrl, logo: chLogo });
             }
@@ -368,7 +388,12 @@
                 }
             } else if (line.indexOf("http") === 0) {
                 var link = line.split('?')[0].split('|')[0];
-                channels.push({ name: name, url: link, logo: logo });
+                
+                // .mpd লিংক হলে বাদ দেওয়া হবে
+                if (!isMpdUrl(link)) {
+                    channels.push({ name: name, url: link, logo: logo });
+                }
+                
                 name = "Unknown";
                 logo = null;
             }
