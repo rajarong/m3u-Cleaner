@@ -93,7 +93,7 @@
         if (!url || typeof url !== "string") return false;
         url = url.trim();
         if (!HTTP_RX.test(url)) return false;
-        if (url.length > 120) return false; // ১২০ অক্ষরের বেশি হলে ডিফল্ট লোগো বসবে
+        if (url.length > 120) return false;
         if (/[<>{}\\]/.test(url)) return false;
         return true;
     }
@@ -129,9 +129,8 @@
         
         var btn = document.getElementById("pBtn");
         btn.disabled = true; 
-        btn.innerText = "Processing..."; // প্রসেসিং চলাকালীন টেক্সট দেখাবে
+        btn.innerText = "Processing..."; 
 
-        // ব্রাউজারকে রেন্ডার করার সুযোগ দেওয়ার জন্য সামান্য ডিলে দেওয়া হলো
         setTimeout(function() {
             var channels = [];
 
@@ -162,7 +161,6 @@
                     logoUrl = DEFAULT_LOGO;
                 }
 
-                // নাম থেকে HTML ট্যাগগুলো রিমুভ করা হচ্ছে
                 var chName = cleanName(channels[i].name);
 
                 out.push('#EXTINF:-1 tvg-name="' + chName + '" tvg-logo="' + logoUrl + '?ref=skym3u.dev" provider="skym3u.dev",' + chName);
@@ -174,8 +172,8 @@
             document.getElementById("rawInput").value = ""; 
             
             btn.disabled = false;
-            btn.innerText = "Process"; // কাজ শেষ হলে আগের মতো হয়ে যাবে
-        }, 50);
+            btn.innerText = "Process";
+        }, 100);
     } 
 
     /* ═══════════════════════════════════════════════
@@ -313,7 +311,7 @@
     }
 
     /* ═══════════════════════════════════════════════
-       STRATEGY 2: JS/TS Object Regex Extraction
+       STRATEGY 2: JS/TS Object Regex Extraction (Fixed for all channels)
     ═══════════════════════════════════════════════ */
     function tryJSObjects(text) {
         var results = [];
