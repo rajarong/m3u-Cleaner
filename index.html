@@ -311,7 +311,7 @@
     }
 
     /* ═══════════════════════════════════════════════
-       STRATEGY 2: JS/TS Object Regex Extraction (Fixed for all channels)
+       STRATEGY 2: JS/TS Object Regex Extraction
     ═══════════════════════════════════════════════ */
     function tryJSObjects(text) {
         var results = [];
@@ -403,23 +403,31 @@
     }
 
     /* ═══════════════════════════════════════════════
-       COPY & CLEAR
+       COPY & CLEAR (Fixed for 100% full text copying)
     ═══════════════════════════════════════════════ */
     function copyAndDestroy() { 
         var target = document.getElementById("output"); 
         var source = document.getElementById("rawInput");
+        var textToCopy = target.value;
         
-        target.select(); 
-        target.setSelectionRange(0, 99999);
-        document.execCommand("copy"); 
-        
-        window.getSelection().removeAllRanges();
-        
-        target.value = ""; 
-        source.value = ""; 
-        document.getElementById("copyBtn").style.display = "none";
-        
-        console.log("Memory Cleared.");
+        if (!textToCopy) return;
+
+        // মডার্ন ক্লিপবোর্ড এপিআই ব্যবহার করা হয়েছে যা বিশাল ডেটা ১০০% নির্ভুলভাবে কপি করে
+        navigator.clipboard.writeText(textToCopy).then(function() {
+            target.value = ""; 
+            source.value = ""; 
+            document.getElementById("copyBtn").style.display = "none";
+            console.log("Copied Successfully and Memory Cleared.");
+        }).catch(function(err) {
+            // ফলব্যাক মেথড যদি ক্লিপবোর্ড এপিআই ব্লক থাকে
+            target.select();
+            target.setSelectionRange(0, textToCopy.length);
+            document.execCommand("copy");
+            window.getSelection().removeAllRanges();
+            target.value = ""; 
+            source.value = ""; 
+            document.getElementById("copyBtn").style.display = "none";
+        });
     }
 </script>
 
